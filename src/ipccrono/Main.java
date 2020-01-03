@@ -5,72 +5,92 @@
 */
 package ipccrono;
 
-import ipccrono.main.FXMLMainController;
+import ipccrono.stages.ejercicios.FXMLEjerciciosController;
+import ipccrono.stages.main.FXMLMainController;
+import ipccrono.stages.rutina.FXMLRutinaController;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import static javafx.scene.layout.Region.USE_COMPUTED_SIZE;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
-/**
- *
- * @author FMR
- */
 public class Main extends Application {
     
+    private static Stage stage;
+    public final static int MAIN_STAGE = 0, RUTINAS_STAGE = 1, ADD_EDIT_RUTINA_STAGE=2, ADD_SELECT_EJERCICIO = 3;
+    private static Scene mainScene, rutinasScene, rutinaScene, ejerciciosScene;
+    
+    private static FXMLEjerciciosController ejsController;
+    private static FXMLRutinaController rutinaController;
+    
     @Override
-    public void start(Stage stage) throws Exception {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/ipccrono/main/FXMLMain.fxml"));
+    public void start(Stage st) throws Exception {
+        stage = st;
         
-        Parent root = loader.load();
-        FXMLMainController controller = loader.getController();
-        Scene scene = new Scene(root);
+        //MAIN WINDOW
+        FXMLLoader mainLoader = new FXMLLoader(getClass().getResource("/ipccrono/stages/main/FXMLMain.fxml"));
+        Parent main = mainLoader.load();
+        mainScene = new Scene(main);
         
+        //RUTINAS WINDOW
+        FXMLLoader rutinasLoader = new FXMLLoader(getClass().getResource("/ipccrono/stages/rutinas/FXMLRutinas.fxml"));
+        Parent rutinas = rutinasLoader.load();
+        rutinasScene = new Scene(rutinas);
         
-        scene.widthProperty().addListener((observable, oldValue, newValue) -> {
-            resize(newValue,controller);
-        });
-        scene.heightProperty().addListener((observable, oldValue, newValue) -> {
-            resize(scene.getWidth(),controller);
-        });
-        controller.setBgColor(Color.CYAN);
-        resize(scene.getWidth(),controller);
-
-        stage.setScene(scene);
-        stage.show();
-        stage.setMinWidth(stage.getWidth());
-        stage.setMinHeight(stage.getHeight());
+        //RUTINA WINDOW
+        FXMLLoader rutinaLoader = new FXMLLoader(getClass().getResource("/ipccrono/stages/rutina/FXMLRutina.fxml"));
+        Parent rutina = rutinaLoader.load();
+        rutinaScene = new Scene(rutina);
+        rutinaController = rutinaLoader.getController();
+        
+        //EJERCICIOS WINDOW
+        FXMLLoader ejerciciosLoader = new FXMLLoader(getClass().getResource("/ipccrono/stages/ejercicios/FXMLEjercicios.fxml"));
+        Parent ejercicios = ejerciciosLoader.load();
+        ejerciciosScene = new Scene(ejercicios);
+        ejsController = ejerciciosLoader.getController();
+        
+        sceneSetup(mainScene);
+        
     }
     
-    /**
-     * @param args the command line arguments
-     */
+    public static FXMLEjerciciosController getEjsController(){
+        return ejsController;
+    }
+    
+    public static FXMLRutinaController getRutinaController(){
+        return rutinaController;
+    }
+    
     public static void main(String[] args) {
         launch(args);
     }
     
-    public void resize(Number n, FXMLMainController controller){
-        
-        double w = n.doubleValue()/4;
-        
-        controller.getProgressCircle().setCenterX(w);
-        controller.getProgressCircle().setCenterY(w);
-        controller.getInnerCircle().setCenterX(w);
-        controller.getInnerCircle().setCenterY(w);
-        //        controller.getButton().setCenterX(w);
-        //        controller.getButton().setCenterY(w);
-
-        controller.getProgressCircle().setRadiusX(w);
-        controller.getProgressCircle().setRadiusY(w);
-        controller.getInnerCircle().setRadius(w - 0.25 * w);
-        //        controller.getButton().setRadius(w - 0.4 * w);
-
-        controller.getBtn().setPrefSize((w - 0.4 * w) * 2, (w - 0.4 * w) * 2);
-        controller.getBtn().setLayoutX(w - 0.6 * w);
-        controller.getBtn().setLayoutY(w - 0.6 * w);
-        controller.getBtn().setStyle("-fx-background-radius:" + (w - 0.4 * w) * 2 + "px;");
+    public static void switchScene(int scene){
+        switch(scene){
+            case MAIN_STAGE:{
+                sceneSetup(mainScene);
+                break;
+            }
+            case RUTINAS_STAGE:{
+                sceneSetup(rutinasScene);
+                break;
+            }
+            case ADD_EDIT_RUTINA_STAGE:{
+                sceneSetup(rutinaScene);
+                break;
+            }
+            case ADD_SELECT_EJERCICIO:{
+                sceneSetup(ejerciciosScene);
+                break;
+            }
+        }
     }
     
+    public static void sceneSetup(Scene scene){
+        stage.setScene(scene);
+        stage.show();
+        stage.setResizable(false);
+        stage.sizeToScene();
+    }
 }
