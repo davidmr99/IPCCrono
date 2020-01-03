@@ -40,7 +40,7 @@
          <bottom>
             <HBox BorderPane.alignment="CENTER">
                <children>
-                  <Button maxWidth="380.0" minWidth="380.0" mnemonicParsing="false" onAction="#add" text="Añadir">
+                  <Button fx:id="addEj" maxWidth="380.0" minWidth="380.0" mnemonicParsing="false" onAction="#add" text="Añadir">
                      <font>
                         <Font name="Bebas" size="25.0" />
                      </font>
@@ -102,7 +102,7 @@
                               <Insets />
                            </VBox.margin>
                         </GridPane>
-                        <Button mnemonicParsing="false" onAction="#addEjercicio" text=" Guardar ejercicio">
+                        <Button fx:id="addNewEj" mnemonicParsing="false" onAction="#addEjercicio" text=" Guardar ejercicio">
                            <VBox.margin>
                               <Insets bottom="10.0" />
                            </VBox.margin>

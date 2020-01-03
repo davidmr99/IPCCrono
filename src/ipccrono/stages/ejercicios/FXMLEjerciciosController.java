@@ -6,13 +6,14 @@
 package ipccrono.stages.ejercicios;
 
 import ipccrono.Main;
-import ipccrono.stages.rutina.Rutina;
 import java.net.URL;
 import java.util.ResourceBundle;
+import javafx.beans.binding.Bindings;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Cursor;
@@ -43,16 +44,31 @@ public class FXMLEjerciciosController implements Initializable {
     private TextField durationField;
     @FXML
     private ListView<Ejercicio> ejerciciosListView;
+    @FXML
+    private Button addEj;
+    @FXML
+    private Button addNewEj;
+    
+    private ObservableList<Ejercicio> ejercicios;
     
     /**
      * Initializes the controller class.
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        ejercicios = FXCollections.observableArrayList();
+        updateButton();
         ejerciciosListView.setCellFactory(new Callback<ListView<Ejercicio>, ListCell<Ejercicio>>() {
             @Override
             public ListCell<Ejercicio> call(ListView<Ejercicio> param) {
                 return new ListCelda();
+            }
+        });
+        nameField.textProperty().addListener(new ChangeListener<String>() {
+            @Override
+            public void changed(ObservableValue<? extends String> observable, String oldValue,
+                    String newValue) {
+                updateButton();
             }
         });
         durationField.textProperty().addListener(new ChangeListener<String>() {
@@ -62,17 +78,37 @@ public class FXMLEjerciciosController implements Initializable {
                 if (!newValue.matches("\\d*")) {
                     durationField.setText(newValue.replaceAll("[^\\d]", ""));
                 }
+                updateButton();
             }
         });
+//        ejerciciosListView.getItems().addListener(new ListChangeListener() {
+//            @Override
+//            public void onChanged(ListChangeListener.Change change) {
+//                System.out.println("Detected a change! ");
+//            }
+//        });
+addEj.disableProperty().bind(Bindings.isEmpty(ejercicios).or(Bindings.isNull(ejerciciosListView.getSelectionModel().selectedItemProperty())));
+ejerciciosListView.setItems(ejercicios);
+
+    }
+    
+    private void updateButton(){
+        if(!nameField.getText().trim().isEmpty() && !durationField.getText().trim().isEmpty()){
+            addNewEj.setDisable(false);
+        }else{
+            addNewEj.setDisable(true);
+        }
     }
     
     public void removeEj(Ejercicio e){
-        ejerciciosListView.getItems().remove(e);
+        ejercicios.remove(e);
     }
     
     @FXML
     private void add(ActionEvent event) {
+        System.out.println("rutinas before save: "+ Main.getRutinasController().getRutinas());
         Main.getRutinaController().addEjercicio(ejerciciosListView.getSelectionModel().getSelectedItem());
+        System.out.println("rutinas after save: "+ Main.getRutinasController().getRutinas());
         Main.switchScene(Main.ADD_EDIT_RUTINA_STAGE);
     }
     
@@ -83,11 +119,11 @@ public class FXMLEjerciciosController implements Initializable {
     
     @FXML
     private void addEjercicio(ActionEvent event) {
-        if(!nameField.getText().trim().isEmpty() && !durationField.getText().trim().isEmpty()){
-            ejerciciosListView.getItems().add(new Ejercicio(nameField.getText(), Integer.parseInt(durationField.getText())));
-            nameField.setText("");
-            durationField.setText("");
-        }
+        Ejercicio ej = new Ejercicio(nameField.getText(), Integer.parseInt(durationField.getText()));
+        ejercicios.add(ej);
+        ejerciciosListView.getSelectionModel().select(ej);
+        nameField.setText("");
+        durationField.setText("");
     }
     
 }
@@ -109,7 +145,7 @@ class ListCelda extends ListCell<Ejercicio> {
             imgView.setFitWidth(28);
             btn.setGraphic(imgView);
             btn.setOnMouseClicked((event) -> {
-               Main.getEjsController().removeEj(item);
+                Main.getEjsController().removeEj(item);
             });
             
             GridPane gp = new GridPane();
@@ -126,8 +162,8 @@ class ListCelda extends ListCell<Ejercicio> {
 //            HBox h = new HBox(new Label(item.getName()),imgView,imgView2);
 //            h.setSpacing(5);
 //            setGraphic(h);
-            setCursor(Cursor.HAND);
-            setGraphic(gp);
+setCursor(Cursor.HAND);
+setGraphic(gp);
         }
     }
 }

@@ -39,7 +39,7 @@
          <bottom>
             <HBox BorderPane.alignment="CENTER">
                <children>
-                  <Button maxWidth="380.0" minWidth="380.0" mnemonicParsing="false" onAction="#accept" text="Aceptar">
+                  <Button fx:id="accept" maxWidth="380.0" minWidth="380.0" mnemonicParsing="false" onAction="#accept" text="Aceptar">
                      <font>
                         <Font name="Bebas" size="25.0" />
                      </font>

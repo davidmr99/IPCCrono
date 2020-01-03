@@ -5,11 +5,16 @@
  */
 package ipccrono.stages.rutinas;
 
+import com.sun.javafx.collections.ObservableListWrapper;
 import ipccrono.stages.rutina.Rutina;
 import ipccrono.Main;
-import java.awt.event.ActionListener;
+import ipccrono.stages.ejercicios.Ejercicio;
+import ipccrono.stages.rutina.FXMLRutinaController;
 import java.net.URL;
 import java.util.ResourceBundle;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.collections.ObservableListBase;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -25,7 +30,6 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.util.Callback;
-import org.w3c.dom.events.MouseEvent;
 
 /**
  * FXML Controller class
@@ -38,6 +42,8 @@ public class FXMLRutinasController implements Initializable {
     private BorderPane mainPane;
     @FXML
     private ListView<Rutina> listView;
+    
+    private static ObservableList<Rutina> rutinas;
 
     /**
      * Initializes the controller class.
@@ -52,7 +58,13 @@ public class FXMLRutinasController implements Initializable {
                 return new ListCelda();
             }
         });
-        listView.getItems().add(new Rutina("Rutina fitness", 3, 20, null, 5));
+        ObservableList<Ejercicio> ejemplo = FXCollections.observableArrayList();
+        ejemplo.add(new Ejercicio("Abdominales",5));
+        Rutina ejemploRutina = new Rutina("Rutina fitness", 3, 20, ejemplo , 5);
+        
+        rutinas = FXCollections.observableArrayList();
+        rutinas.add(ejemploRutina);
+        listView.setItems(rutinas);
     }    
 
     @FXML
@@ -62,11 +74,19 @@ public class FXMLRutinasController implements Initializable {
 
     @FXML
     private void addRutina(ActionEvent event) {
+        Main.getRutinaController().clearData();
+        FXMLRutinaController.editingRutina = false;
         Main.switchScene(Main.ADD_EDIT_RUTINA_STAGE);
+    }
+    
+    public ObservableList<Rutina> getRutinas() {
+        return rutinas;
     }
     
 }
 class ListCelda extends ListCell<Rutina> {
+    private Button btn,btn2;
+    private Rutina rutina;
     @Override
     protected void updateItem(Rutina item, boolean empty) {
         super.updateItem(item, empty);
@@ -76,24 +96,31 @@ class ListCelda extends ListCell<Rutina> {
         } else {
             setGraphic(null);
             setText(null);
-            Button btn = new Button();
+            rutina = item;
+            btn = new Button();
             Image img = new Image("/ipccrono/resources/cancel.png");
             ImageView imgView = new ImageView(img);
             imgView.setFitHeight(28);
             imgView.setFitWidth(28);
             btn.setGraphic(imgView);
+            btn.setOnAction((event) -> {
+                Main.getRutinasController().getRutinas().remove(rutina);
+            });
             
-            Button btn2 = new Button();
+            btn2 = new Button();
             Image img2 = new Image("/ipccrono/resources/pencil.png");
             ImageView imgView2 = new ImageView(img2);
             imgView2.setFitHeight(28);
             imgView2.setFitWidth(28);
             btn2.setGraphic(imgView2);
-            btn2.setOnAction(new EventHandler<ActionEvent>() {
-                @Override
-                public void handle(ActionEvent event) {
-                    Main.switchScene(Main.ADD_EDIT_RUTINA_STAGE);
-                }
+            btn2.setOnAction((ActionEvent event) -> {
+                FXMLRutinaController.editingRutina = true;
+                FXMLRutinaController.index = Main.getRutinasController().getRutinas().indexOf(rutina);
+                System.out.println("index of rutina: "+Main.getRutinasController().getRutinas().indexOf(rutina));
+                System.out.println("RUtinas; "+Main.getRutinasController().getRutinas());
+                System.out.println("rutina actual: "+rutina);
+                Main.getRutinaController().setData(rutina.getName(), rutina.getRepeticiones(), rutina.getDescansoRepet(), rutina.getDescansoEjs(), rutina.getEjercicios());
+                Main.switchScene(Main.ADD_EDIT_RUTINA_STAGE);
             });
             
             GridPane gp = new GridPane();

@@ -33,4 +33,8 @@ public class Ejercicio {
     public void setName(String nombre){
         name = nombre;
     }
+    @Override
+    public String toString(){
+        return "Ejercicio "+name+" ,"+time+"s";
+    }
 }

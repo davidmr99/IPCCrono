@@ -6,13 +6,12 @@
 package ipccrono;
 
 import ipccrono.stages.ejercicios.FXMLEjerciciosController;
-import ipccrono.stages.main.FXMLMainController;
 import ipccrono.stages.rutina.FXMLRutinaController;
+import ipccrono.stages.rutinas.FXMLRutinasController;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 public class Main extends Application {
@@ -23,6 +22,7 @@ public class Main extends Application {
     
     private static FXMLEjerciciosController ejsController;
     private static FXMLRutinaController rutinaController;
+    private static FXMLRutinasController rutinasController;
     
     @Override
     public void start(Stage st) throws Exception {
@@ -37,6 +37,7 @@ public class Main extends Application {
         FXMLLoader rutinasLoader = new FXMLLoader(getClass().getResource("/ipccrono/stages/rutinas/FXMLRutinas.fxml"));
         Parent rutinas = rutinasLoader.load();
         rutinasScene = new Scene(rutinas);
+        rutinasController = rutinasLoader.getController();
         
         //RUTINA WINDOW
         FXMLLoader rutinaLoader = new FXMLLoader(getClass().getResource("/ipccrono/stages/rutina/FXMLRutina.fxml"));
@@ -56,6 +57,10 @@ public class Main extends Application {
     
     public static FXMLEjerciciosController getEjsController(){
         return ejsController;
+    }
+    
+    public static FXMLRutinasController getRutinasController(){
+        return rutinasController;
     }
     
     public static FXMLRutinaController getRutinaController(){

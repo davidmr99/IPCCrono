@@ -21,11 +21,7 @@ public class Rutina {
     
     
     public Rutina(String nombre, int repet, int descansoRepet, ObservableList<Ejercicio> ejs, int descansoEjs){
-        name = nombre;
-        repeticiones = repet;
-        tDescansoRepeticiones = descansoRepet;
-        ejercicios = ejs;
-        tDescansoEjercicios = descansoEjs;
+        update(nombre,repet,descansoRepet,ejs,descansoEjs);
     }
     
     public String getName(){
@@ -33,6 +29,31 @@ public class Rutina {
     }
     
     public int getRepeticiones(){
-        return repeticiones;
+        return this.repeticiones;
+    }
+    
+    public int getDescansoRepet(){
+        return this.tDescansoRepeticiones;
+    }
+    
+    public int getDescansoEjs(){
+        return this.tDescansoEjercicios;
+    }
+    
+    public ObservableList<Ejercicio> getEjercicios(){
+        return this.ejercicios;
+    }
+
+    void update(String nombre, int repet, int descansoRepet, ObservableList<Ejercicio> ejs, int descansoEjs) {
+        name = nombre;
+        repeticiones = repet;
+        tDescansoRepeticiones = descansoRepet;
+        ejercicios = ejs;
+        tDescansoEjercicios = descansoEjs;
+    }
+    
+    @Override
+    public String toString() {
+        return name + ", "+repeticiones+" repes con descanso: "+tDescansoRepeticiones+", ejs: "+ejercicios;
     }
 }

@@ -9,6 +9,11 @@ import ipccrono.Main;
 import ipccrono.stages.ejercicios.Ejercicio;
 import java.net.URL;
 import java.util.ResourceBundle;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -44,22 +49,64 @@ public class FXMLRutinaController implements Initializable {
     private TextField descEjerField;
     @FXML
     private ListView<Ejercicio> ejerciciosListView;
+    @FXML
+    private Button accept;
+    
+    private ObservableList<Ejercicio> ejercicios;
+    
+    public static boolean editingRutina = false;
+    public static int index = 0;
 
     /**
      * Initializes the controller class.
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        ejerciciosListView.setCellFactory(new Callback<ListView<Ejercicio>, ListCell<Ejercicio>>() {
-            @Override
-            public ListCell<Ejercicio> call(ListView<Ejercicio> param) {
-                return new ListCelda();
-            }
+        ejercicios = FXCollections.observableArrayList();
+        updateButton();
+        ejerciciosListView.setCellFactory((ListView<Ejercicio> param) -> new ListCelda());
+        
+        ChangeListener<String> sL = (ObservableValue<? extends String> e, String oldValue, String newValue) -> {
+            updateButton();
+        };
+        
+        nameField.textProperty().addListener(sL);
+        ejerciciosListView.itemsProperty().addListener((observable) -> {
+            System.out.println("list change");
+            updateButton();
         });
+        
+        repetField.textProperty().addListener((ObservableValue<? extends String> observable, String oldValue, String newValue) -> {
+            if (!newValue.matches("\\d*")) {
+                repetField.setText(newValue.replaceAll("[^\\d]", ""));
+            }
+            updateButton();
+        });
+        descRepetField.textProperty().addListener((ObservableValue<? extends String> observable, String oldValue, String newValue) -> {
+            if (!newValue.matches("\\d*")) {
+                descRepetField.setText(newValue.replaceAll("[^\\d]", ""));
+            }
+            updateButton();
+        });
+        descEjerField.textProperty().addListener((ObservableValue<? extends String> observable, String oldValue, String newValue) -> {
+            if (!newValue.matches("\\d*")) {
+                descEjerField.setText(newValue.replaceAll("[^\\d]", ""));
+            }
+            updateButton();
+        });
+        ejerciciosListView.setItems(ejercicios);
     }    
 
     @FXML
     private void accept(ActionEvent event) {
+        System.out.println("rutinas ebfore: "+ Main.getRutinasController().getRutinas());
+        if(editingRutina){
+            Main.getRutinasController().getRutinas().get(index).update(nameField.getText(), Integer.parseInt(repetField.getText()), Integer.parseInt(descRepetField.getText()), ejercicios, Integer.parseInt(descEjerField.getText()));
+            System.out.println("rutinas after edit: "+ Main.getRutinasController().getRutinas());
+        }else {
+            Main.getRutinasController().getRutinas().add(new Rutina(nameField.getText(), Integer.parseInt(repetField.getText()), Integer.parseInt(descRepetField.getText()), ejercicios, Integer.parseInt(descEjerField.getText())));
+            System.out.println("rutinas after save: "+ Main.getRutinasController().getRutinas());
+        }
         Main.switchScene(Main.RUTINAS_STAGE);
     }
 
@@ -74,11 +121,53 @@ public class FXMLRutinaController implements Initializable {
     }
     
     public void addEjercicio(Ejercicio e){
-        ejerciciosListView.getItems().add(e);
+        System.out.println("añadiendo ej");
+        ejercicios.add(e);
     }
     
     public void removeEj(Ejercicio e){
-        ejerciciosListView.getItems().remove(e);
+        ejercicios.remove(e);
+    }
+    
+    public void clearData(){
+        nameField.setText("");
+        repetField.setText("");
+        descRepetField.setText("");
+        descEjerField.setText("");
+        ejercicios.clear();
+//        if(!ejercicios.isEmpty()){
+//            ejercicios.clear();
+//        }
+    }
+    
+    public void setData(String name, int nRepeticiones, int descRep, int descEj, ObservableList<Ejercicio> ejsList){
+        nameField.setText(name);
+        repetField.setText(String.valueOf(nRepeticiones));
+        descRepetField.setText(String.valueOf(descRep));
+        descEjerField.setText(String.valueOf(descEj));
+        
+        ListChangeListener<Ejercicio> lCL = (ListChangeListener.Change<? extends Ejercicio> c) -> {
+            System.out.println("list change");
+            updateButton();
+        };
+        
+        ejsList.addListener(lCL);
+        ejercicios = ejsList;
+        ejerciciosListView.setItems(ejercicios);
+        ejerciciosListView.refresh();
+    }
+    
+    
+    private void updateButton(){
+        if(!nameField.getText().trim().isEmpty() 
+                && !repetField.getText().trim().isEmpty() 
+                && !descRepetField.getText().trim().isEmpty() 
+                && !descEjerField.getText().trim().isEmpty()
+                && !ejercicios.isEmpty()){
+            accept.setDisable(false);
+        }else{
+            accept.setDisable(true);
+        }
     }
 }
 
