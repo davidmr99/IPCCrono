@@ -123,10 +123,12 @@ public class FXMLRutinaController implements Initializable {
     public void addEjercicio(Ejercicio e){
         System.out.println("añadiendo ej");
         ejercicios.add(e);
+        updateButton();
     }
     
     public void removeEj(Ejercicio e){
         ejercicios.remove(e);
+        updateButton();
     }
     
     public void clearData(){
@@ -134,10 +136,8 @@ public class FXMLRutinaController implements Initializable {
         repetField.setText("");
         descRepetField.setText("");
         descEjerField.setText("");
-        ejercicios.clear();
-//        if(!ejercicios.isEmpty()){
-//            ejercicios.clear();
-//        }
+        ejercicios = FXCollections.observableArrayList();
+        ejerciciosListView.setItems(ejercicios);
     }
     
     public void setData(String name, int nRepeticiones, int descRep, int descEj, ObservableList<Ejercicio> ejsList){

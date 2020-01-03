@@ -62,8 +62,12 @@ public class FXMLRutinasController implements Initializable {
         ejemplo.add(new Ejercicio("Abdominales",5));
         Rutina ejemploRutina = new Rutina("Rutina fitness", 3, 20, ejemplo , 5);
         
+        ObservableList<Ejercicio> ejemplo2 = FXCollections.observableArrayList();
+        ejemplo2.addAll(new Ejercicio("p",3),new Ejercicio("Abdominales",5),new Ejercicio("Flexiones",15));
+        Rutina ejemploRutina2 = new Rutina("Rutina n2", 4, 10, ejemplo2 , 15);
+        
         rutinas = FXCollections.observableArrayList();
-        rutinas.add(ejemploRutina);
+        rutinas.addAll(ejemploRutina,ejemploRutina2);
         listView.setItems(rutinas);
     }    
 
