@@ -18,6 +18,7 @@ public class Rutina {
     private int tDescansoRepeticiones;
     private ObservableList<Ejercicio> ejercicios;
     private int tDescansoEjercicios;
+    private int totalTime;
     
     
     public Rutina(String nombre, int repet, int descansoRepet, ObservableList<Ejercicio> ejs, int descansoEjs){
@@ -50,10 +51,34 @@ public class Rutina {
         tDescansoRepeticiones = descansoRepet;
         ejercicios = ejs;
         tDescansoEjercicios = descansoEjs;
+        
+        int t=0;
+        for(Ejercicio e:ejs){
+            t += e.getTime() + tDescansoEjercicios;
+        }
+        t -= tDescansoEjercicios;
+        
+        totalTime = repet*(t + tDescansoRepeticiones) - tDescansoRepeticiones;
     }
     
     @Override
     public String toString() {
         return name + ", "+repeticiones+" repes con descanso: "+tDescansoRepeticiones+", ejs: "+ejercicios;
+    }
+    
+    public static int getH(int time){
+        return time / 3600;
+    }
+    
+    public static int getM(int time){
+        return time/60 - getH(time) * 60;
+    }
+    
+    public static int getS(int time){
+        return time % 60;
+    }
+    
+    public int getTime(){
+        return totalTime;
     }
 }

@@ -1,0 +1,15 @@
+/*.cell:filled:selected { 
+  -fx-background: -fx-control-inner-background ;
+  -fx-background-color: -fx-list-cell-border-color, -fx-background ;
+  -fx-background-insets: 0, 0 0 1 0 ;
+  -fx-table-cell-border-color: derive(-fx-color, 5%);
+}
+.cell:odd:filled:selected {
+  -fx-background: -fx-control-inner-background-alt ;
+}*/
+.cell:selected{
+    -fx-background: -fx-control-inner-background ;
+    -fx-background-color: #fff, #b1d5ff;
+    
+    -fx-cell-border-color: derive(-fx-color, 5%);
+}

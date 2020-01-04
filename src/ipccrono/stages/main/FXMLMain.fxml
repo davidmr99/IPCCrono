@@ -31,12 +31,12 @@
                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
               </rowConstraints>
                <children>
-                  <Label alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="Rutina 0/0" textAlignment="CENTER">
+                  <Label fx:id="nRepeticion" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="REPETICION 0/0" textAlignment="CENTER">
                      <font>
                         <Font name="Bebas" size="18.0" />
                      </font>
                   </Label>
-                  <Label alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="Ejercicio:" GridPane.columnIndex="1">
+                  <Label fx:id="rutinaYEjercicio" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="Rutina: -     Ejercicio: -" GridPane.columnIndex="1">
                      <font>
                         <Font name="Bebas" size="20.0" />
                      </font>
@@ -119,7 +119,7 @@
                         </Button>
                      </right>
                      <top>
-                        <Label text="De: 00:00:00" BorderPane.alignment="CENTER">
+                        <Label fx:id="rutinaTime" text="De: 00:00:00" BorderPane.alignment="CENTER">
                            <font>
                               <Font name="Bebas" size="20.0" />
                            </font>

@@ -6,6 +6,7 @@
 package ipccrono;
 
 import ipccrono.stages.ejercicios.FXMLEjerciciosController;
+import ipccrono.stages.main.FXMLMainController;
 import ipccrono.stages.rutina.FXMLRutinaController;
 import ipccrono.stages.rutinas.FXMLRutinasController;
 import javafx.application.Application;
@@ -23,6 +24,9 @@ public class Main extends Application {
     private static FXMLEjerciciosController ejsController;
     private static FXMLRutinaController rutinaController;
     private static FXMLRutinasController rutinasController;
+    private static FXMLMainController mainController;
+    
+    public static final String styleSheet = "/ipccrono/css/styleSheet.css";
     
     @Override
     public void start(Stage st) throws Exception {
@@ -32,6 +36,7 @@ public class Main extends Application {
         FXMLLoader mainLoader = new FXMLLoader(getClass().getResource("/ipccrono/stages/main/FXMLMain.fxml"));
         Parent main = mainLoader.load();
         mainScene = new Scene(main);
+        mainController = mainLoader.getController();
         
         //RUTINAS WINDOW
         FXMLLoader rutinasLoader = new FXMLLoader(getClass().getResource("/ipccrono/stages/rutinas/FXMLRutinas.fxml"));
@@ -53,6 +58,10 @@ public class Main extends Application {
         
         sceneSetup(mainScene);
         
+    }
+    
+    public static FXMLMainController getMainController(){
+        return mainController;
     }
     
     public static FXMLEjerciciosController getEjsController(){
@@ -93,6 +102,7 @@ public class Main extends Application {
     }
     
     public static void sceneSetup(Scene scene){
+        scene.getStylesheets().add(styleSheet);
         stage.setScene(scene);
         stage.show();
         stage.setResizable(false);

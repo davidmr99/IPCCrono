@@ -9,6 +9,7 @@ import ipccrono.Main;
 import ipccrono.stages.ejercicios.Ejercicio;
 import java.net.URL;
 import java.util.ResourceBundle;
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -28,7 +29,6 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
-import javafx.util.Callback;
 
 /**
  * FXML Controller class
@@ -65,7 +65,15 @@ public class FXMLRutinaController implements Initializable {
         ejercicios = FXCollections.observableArrayList();
         updateButton();
         ejerciciosListView.setCellFactory((ListView<Ejercicio> param) -> new ListCelda());
-        
+        ejerciciosListView.getSelectionModel()
+               .selectedIndexProperty()
+               .addListener((observable, oldvalue, newValue) -> {
+
+        Platform.runLater(() -> {
+            ejerciciosListView.getSelectionModel().clearSelection();
+        });
+
+    });
         ChangeListener<String> sL = (ObservableValue<? extends String> e, String oldValue, String newValue) -> {
             updateButton();
         };
@@ -205,7 +213,7 @@ class ListCelda extends ListCell<Ejercicio> {
 //            HBox h = new HBox(new Label(item.getName()),imgView,imgView2);
 //            h.setSpacing(5);
 //            setGraphic(h);
-            setCursor(Cursor.HAND);
+            btn.setCursor(Cursor.HAND);
             setGraphic(gp);
         }
     }
