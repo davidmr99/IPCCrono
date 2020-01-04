@@ -5,12 +5,16 @@
 */
 package ipccrono.stages.main;
 
-import ipccrono.stages.ejercicios.Ejercicio;
+import ipccrono.Main;
 import static ipccrono.stages.main.IntervalTimerS.EstadoSesion.*;
 import ipccrono.stages.rutina.Rutina;
 import java.time.Duration;
 import java.util.HashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.application.Platform;
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.concurrent.Service;
@@ -42,6 +46,34 @@ public class IntervalTimerS extends Service<Boolean> {
     // cuando se activa a true y se lanza la task solo se cambia de estado
     private boolean cambiarEstado = false;
     
+    
+                Thread progress = new Thread(){
+                    @Override
+                    public void run() {
+                        while(true){
+                            try {
+                                Thread.sleep(1);
+                            } catch (InterruptedException ex) {
+                                Logger.getLogger(IntervalTimerS.class.getName()).log(Level.SEVERE, null, ex);
+                            }
+                            if(Main.getMainController().getRutina()!= null && !Main.getMainController().isPaused()){
+                                if(millisTrans>0){
+                                    millisTrans--;
+                                }
+                                Platform.runLater(()->{
+                                    System.out.println("millisTrans: "+millisTrans+"  orign: "+millisOriginal);
+                                    double val = 360 - (Double.valueOf(millisTrans) / Double.valueOf(millisOriginal))*360;
+                                ejercicioProgress.setValue(val);
+                                    System.out.println(val);
+                                
+//                                System.out.println("hey runninf");
+                                });
+                            }
+                        }
+                    }
+                    
+                };
+    
     /**
      * Get the value of canviarEstado
      *
@@ -66,6 +98,7 @@ public class IntervalTimerS extends Service<Boolean> {
     private StringProperty tiempo = new SimpleStringProperty();
     private StringProperty ejercicio = new SimpleStringProperty();
     private StringProperty repeticion = new SimpleStringProperty();
+    private DoubleProperty ejercicioProgress = new SimpleDoubleProperty(0);
     
     public String getTiempo() {
         return tiempo.get();
@@ -81,6 +114,14 @@ public class IntervalTimerS extends Service<Boolean> {
     
     public void setEjercicio(StringProperty value) {
         ejercicio = value;
+    }
+    
+    public Double getEjercicioProgress() {
+        return ejercicioProgress.get();
+    }
+    
+    public void setEjercicioProgress(double value) {
+        ejercicioProgress.set(value);
     }
     
     public String getRepeticion() {
@@ -103,6 +144,30 @@ public class IntervalTimerS extends Service<Boolean> {
         return repeticion;
     }
     
+    public DoubleProperty ejercicioProgressProperty() {
+        return ejercicioProgress;
+    }
+    
+//    public IntervalTimerS(){
+//        if(durations != null){
+//            durations.clear();
+//        }
+//        currentTime = 0; // guarda la hora del instante actual
+//        startTime = 0;// guarda la hora del instante inicial del intervalo
+//        stoppedDuration = 0;// guarda la duracion del tiempo que hemos estdo detenidos
+//        stoppedTime = 0L;
+//        
+//        ejercicioActual = 1;
+//        circuitoActual = 1;
+//        rutina = null;
+//        
+//        estadoActual = PREPARADO;
+//        
+//        // cuando se activa a true y se lanza la task solo se cambia de estado
+//        cambiarEstado = false;
+//        
+//    }
+    
     public void setSesionTipo(Rutina st) {
         rutina = st;
         
@@ -115,13 +180,17 @@ public class IntervalTimerS extends Service<Boolean> {
 //        Duration ejDur = Duration.ofSeconds(ej.getTime());
 //            durations.put(getEj(ej), ejDur)
 //        }
-        durations.put(DESCANSO_EJERCICIO, descEjs);
-        durations.put(DESCANSO_CIRCUITO, descRepet);
-            Platform.runLater(() -> {
-                tiempo.setValue(String.format("%02d", 0) + ":" + String.format("%02d", 0) + ":" + String.format("%02d", 0));
-                ejercicio.setValue("Rutina: "+rutina.getName()+ "     Ejercicio: "+rutina.getEjercicios().get(0).getName());
-                repeticion.setValue("REPETICION 1/"+rutina.getRepeticiones());
-            });
+durations.put(DESCANSO_EJERCICIO, descEjs);
+durations.put(DESCANSO_CIRCUITO, descRepet);
+Platform.runLater(() -> {
+    int time = rutina.getEjercicios().get(0).getTime();
+    tiempo.setValue(String.format("%02d", Rutina.getH(time)) + ":" + String.format("%02d", Rutina.getM(time)) + ":" + String.format("%02d", Rutina.getS(time)));
+    ejercicio.setValue("Rutina: "+rutina.getName()+ "     Ejercicio: "+rutina.getEjercicios().get(0).getName());
+    repeticion.setValue("REPETICION 1/"+rutina.getRepeticiones());
+    ejercicioProgress.setValue(0);
+    millisTrans = time*1000;
+    millisOriginal = millisTrans;
+});
     }
     
     public void restaurarInicio() {
@@ -132,13 +201,17 @@ public class IntervalTimerS extends Service<Boolean> {
             estadoActual = PREPARADO;
             stoppedTime = null;
             Platform.runLater(() -> {
-                tiempo.setValue(String.format("%02d", 0) + ":" + String.format("%02d", 0) + ":" + String.format("%02d", 0));
+                int time = rutina.getEjercicios().get(0).getTime();
+                tiempo.setValue(String.format("%02d", Rutina.getH(time)) + ":" + String.format("%02d", Rutina.getM(time)) + ":" + String.format("%02d", Rutina.getS(time)));
                 ejercicio.setValue("Rutina: "+rutina.getName()+ "     Ejercicio: "+rutina.getEjercicios().get(0).getName());
                 repeticion.setValue("REPETICION 1/"+rutina.getRepeticiones());
+                ejercicioProgress.setValue(0);
             });
         }
     }
     
+    long millisTrans = 0,millisOriginal=0;
+    int time=0;
     @Override
     protected Task<Boolean> createTask() {
         return new Task<Boolean>() {
@@ -172,27 +245,41 @@ public class IntervalTimerS extends Service<Boolean> {
                             estadoActual = TERMINADO;
                             Platform.runLater(() -> {
                                 ejercicio.setValue("Rutina: "+rutina.getName()+ "     Ejercicio: "+rutina.getEjercicios().get(0).getName());
+                                ejercicioProgress.setValue(0);
                             });
                             return true;
                         }
                         break;
                     case DESCANSO_EJERCICIO:
                         estadoActual = TRABAJO;
-                            Platform.runLater(() -> {
-                                ejercicio.setValue("Rutina: "+rutina.getName()+ "     Ejercicio: "+rutina.getEjercicios().get(ejercicioActual - 1).getName());
-                            });
+                        Platform.runLater(() -> {
+                            ejercicio.setValue("Rutina: "+rutina.getName()+ "     Ejercicio: "+rutina.getEjercicios().get(ejercicioActual - 1).getName());
+                        });
                         break;
                     case DESCANSO_CIRCUITO:
                         estadoActual = TRABAJO;
-                            Platform.runLater(() -> {
-                                ejercicio.setValue("Rutina: "+rutina.getName()+ "     Ejercicio: "+rutina.getEjercicios().get(ejercicioActual - 1).getName());
-                                repeticion.setValue("REPETICION " + circuitoActual + "/"+rutina.getRepeticiones());
-                            });
+                        Platform.runLater(() -> {
+                            ejercicio.setValue("Rutina: "+rutina.getName()+ "     Ejercicio: "+rutina.getEjercicios().get(ejercicioActual - 1).getName());
+                            repeticion.setValue("REPETICION " + circuitoActual + "/"+rutina.getRepeticiones());
+                        });
                 }
                 Platform.runLater(() -> {
-                    tiempo.setValue(String.format("%02d", 0) + ":" + String.format("%02d", 0) + ":" + String.format("%02d", 0));
+                    
+                    if(estadoActual == TRABAJO){
+                        time = rutina.getEjercicios().get(ejercicioActual - 1).getTime();
+                    }else {
+                        time = (int)durations.get(estadoActual).getSeconds();
+                    }
+                millisTrans = time*1000;
+                millisOriginal = millisTrans;
+                    tiempo.setValue(String.format("%02d", Rutina.getH(time)) + ":" + String.format("%02d", Rutina.getM(time)) + ":" + String.format("%02d", Rutina.getS(time)));
                 });
-                return false;
+//                task
+//if(System.nanoTime()%(1000000)==0){
+//                        millisTrans--;
+//                        ejercicioProgress.setValue((millisTrans % millisOriginal)*360);
+//                    }
+return false;
             }
             
             // calcula el tiempo del intervalo actual, si se ha cumplido invoca a cambiaEstado
@@ -202,13 +289,20 @@ public class IntervalTimerS extends Service<Boolean> {
                 currentTime = System.currentTimeMillis();
                 Long totalTime = (currentTime - startTime) - stoppedDuration;
                 Duration duration = Duration.ofMillis(totalTime);
-                long segundosTrans = duration.getSeconds();
+//                millisTrans = duration.getSeconds()*1000;
+//                progress.start();
                 final Long horas = duration.toHours();
                 final Long minutos = duration.toMinutes();
                 final Long segundos = duration.minusMinutes(minutos).getSeconds();
                 
                 Platform.runLater(() -> {
-                    tiempo.setValue(String.format("%02d", horas) + ":" + String.format("%02d", minutos) + ":" + String.format("%02d", segundos));
+                    int tiempoEj;
+                    if(estadoActual == TRABAJO){
+                        tiempoEj = rutina.getEjercicios().get(ejercicioActual-1).getTime();
+                    }else {
+                        tiempoEj = (int)durations.get(estadoActual).getSeconds();
+                    }
+                    tiempo.setValue(String.format("%02d", Rutina.getH(tiempoEj) - horas) + ":" + String.format("%02d", Rutina.getM(tiempoEj) - minutos) + ":" + String.format("%02d", Rutina.getS(tiempoEj) - segundos));
                 });
                 if(estadoActual == TRABAJO){
                     if (duration.compareTo(Duration.ofSeconds(rutina.getEjercicios().get(ejercicioActual-1).getTime())) >= 0) {
@@ -238,31 +332,59 @@ public class IntervalTimerS extends Service<Boolean> {
                 // si no estabamos detenidos es el arranque del servicio
                 if (stoppedTime == null) {
                     startTime = currentTime = System.currentTimeMillis();
-                //                    if (firstTime) {
-                if (estadoActual == PREPARADO) { // es lla primera vez que arrancamos el servicio
-                    ejercicioActual = 1;
-                    circuitoActual = 1;
-                    estadoActual = TRABAJO;
-                }
+                    //                    if (firstTime) {
+                    if (estadoActual == PREPARADO) { // es lla primera vez que arrancamos el servicio
+                        ejercicioActual = 1;
+                        circuitoActual = 1;
+                        estadoActual = TRABAJO;
+                    }
                 } else { // estabamos detenidos y nos ponemos en marcha sin cambio de estado
                     Long elapsedTime = System.currentTimeMillis() - stoppedTime;
                     stoppedDuration = stoppedDuration + elapsedTime;
                     stoppedTime = null;
                 }
+                short n=0;
                 while (true) {
+                    if(n==10){
+                        n=0;
+                    }
+                    if(Main.getMainController().getRutina()!= null && !Main.getMainController().isPaused()){
+                                if(millisTrans>0){
+                                    millisTrans-=10;
+                                }
+                                Platform.runLater(()->{
+//                                    System.out.println("millisTrans: "+millisTrans+"  orign: "+millisOriginal);
+                                    double val = 360 - (Double.valueOf(millisTrans) / Double.valueOf(millisOriginal))*360;
+                                    ejercicioProgress.setValue(val);
+//                                    System.out.println(val);
+                                
+//                                System.out.println("hey runninf");
+                                });
+                    }
+//                    System.out.println("n: "+n);
                     try {
-                        Thread.sleep(DELAY);
+                        Thread.sleep(10);
                     } catch (InterruptedException ex) {
                         if (isCancelled()) {
                             break;
                         }
                     }
-                    if (isCancelled()) {
-                        break;
+                    if(n==0){
+                        System.out.println("activate");
+                        if (isCancelled()) {
+                            break;
+                        }
+                        if (calcula()) {
+                            return true;
+                        }
+                        System.out.println("tick");
                     }
-                    if (calcula()) {
-                        return true;
-                    }
+                    n++;
+//                    if(System.nanoTime()%(1000000)==0){
+//                        millisTrans--;
+//                        ejercicioProgress.setValue((millisTrans % millisOriginal)*360);
+//                    }
+
                 }
                 return false;
             }
@@ -273,6 +395,11 @@ public class IntervalTimerS extends Service<Boolean> {
                 stoppedTime = new Long(System.currentTimeMillis());
             }
         };
+    }
+    
+    public boolean isLast(){
+        System.out.println("ejeractual: "+ejercicioActual+"  total: "+rutina.getEjercicios().size() +" circuito now: "+ circuitoActual +" de: "+ rutina.getRepeticiones());
+        return ejercicioActual - 1 == rutina.getEjercicios().size() && circuitoActual == rutina.getRepeticiones();
     }
     
 }

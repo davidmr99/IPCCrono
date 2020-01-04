@@ -63,7 +63,7 @@ public class FXMLRutinasController implements Initializable {
         Rutina ejemploRutina = new Rutina("Rutina fitness", 3, 20, ejemplo , 5);
         
         ObservableList<Ejercicio> ejemplo2 = FXCollections.observableArrayList();
-        ejemplo2.addAll(new Ejercicio("p",3),new Ejercicio("Abdominales",5),new Ejercicio("Flexiones",15));
+        ejemplo2.addAll(new Ejercicio("p",3),new Ejercicio("Abdominales",5),new Ejercicio("Flexiones",10));
         Rutina ejemploRutina2 = new Rutina("Rutina n2", 4, 10, ejemplo2 , 15);
         
         rutinas = FXCollections.observableArrayList();
@@ -73,10 +73,12 @@ public class FXMLRutinasController implements Initializable {
 
     @FXML
     private void cronometro(ActionEvent event) {
-        if(listView.getItems().isEmpty()){
-            Main.getMainController().setRutina(null);
-        }else{
+        if(listView.getSelectionModel().getSelectedItem() != null){
             Main.getMainController().setRutina(listView.getSelectionModel().getSelectedItem());
+        }else{
+            if(Main.getMainController().getRutina() != null){
+                Main.getMainController().setRutina(null);
+            }
         }
         Main.switchScene(Main.MAIN_STAGE);
     }

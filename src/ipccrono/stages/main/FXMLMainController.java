@@ -144,42 +144,55 @@ public class FXMLMainController implements Initializable {
             btn.setDisable(true);
             restart.setDisable(true);
             next.setDisable(true);
+            progressCircle.lengthProperty().unbind();
             progressCircle.setLength(135);
-            Thread th = new Thread(task);
+            
+            th = new Thread(task);
             th.setDaemon(true);
             th.start();
             
+            nRepeticion.textProperty().unbind();
             nRepeticion.setText("REPETICION 0/0");
+            rutinaYEjercicio.textProperty().unbind();
             rutinaYEjercicio.setText("Rutina: -     Ejercicio: -");
+            ejercicioTime.textProperty().unbind();
             ejercicioTime.setText("00:00:00");
-            rutinaTime.setText("De: 00:00:00");
-            
+//            rutinaTime.textProperty().unbind();
+rutinaTime.setText("De: 00:00:00");
+
         }else {
+            th.interrupt();
+            timer = null;
             timer = new IntervalTimerS();
+            timer.restaurarInicio();
             timer.setSesionTipo(rutina);
             ejercicioTime.textProperty().bind(timer.tiempoProperty());
             rutinaYEjercicio.textProperty().bind(timer.ejercicioProperty());
             nRepeticion.textProperty().bind(timer.repeticionProperty());
-        
+            
             timer.setOnSucceeded(c -> {
-                if (timer.getValue()) {
+                if (timer != null && timer.getValue() != null && timer.getValue()) {
                     System.out.println("FINISHED!");
-                    btn.setDisable(false);
-                    restart.setDisable(true);
-                    next.setDisable(true);
+                    init();
+                    timer.restaurarInicio();
+//                    timer = new IntervalTimerS();
+//                    timer.setSesionTipo(rutina);
                 }
             });
             
             btn.setDisable(false);
+            paused = true;
+            imageBtn.setImage(playImg);
             restart.setDisable(true);
             next.setDisable(true);
-            progressCircle.setLength(0);
+            progressCircle.setStartAngle(90);
+            progressCircle.lengthProperty().bind(timer.ejercicioProgressProperty());//setLength(0);
             
 //            nRepeticion.setText("REPETICION 1/"+rutina.getRepeticiones());
 //            rutinaYEjercicio.setText("Rutina: "+rutina.getName()+ "     Ejercicio: "+rutina.getEjercicios().get(0).getName());
 //            Ejercicio ej0 = rutina.getEjercicios().get(0);
 //            ejercicioTime.setText(format(Rutina.getH(ej0.getTime()))+":"+format(Rutina.getM(ej0.getTime()))+":"+format(Rutina.getS(ej0.getTime())));
-            rutinaTime.setText("De: "+ format(Rutina.getH(rutina.getTime()))+":"+format(Rutina.getM(rutina.getTime()))+":"+format(Rutina.getS(rutina.getTime())));
+rutinaTime.setText("De: "+ format(Rutina.getH(rutina.getTime()))+":"+format(Rutina.getM(rutina.getTime()))+":"+format(Rutina.getS(rutina.getTime())));
         }
     }
     
@@ -204,13 +217,20 @@ public class FXMLMainController implements Initializable {
             //cambiar a imagen play y pausar el task
             paused = !paused;
         }else if(e.getSource() == next){
-            System.out.println("next");
-            timer.setCambiarEstado(true);
-            timer.restart();
+            if(timer.isLast()){
+                System.out.println("LAST");
+                restart.fire();
+            }else{
+                System.out.println("next");
+                timer.setEjercicioProgress(0d);
+                timer.setCambiarEstado(true);
+                timer.restart();
+            }
         }else if(e.getSource() == restart){
             System.out.println("restart");
             timer.restart();
             init();
+//            timer.restaurarInicio();
         }
         
     }
@@ -242,6 +262,10 @@ public class FXMLMainController implements Initializable {
 //                }
 //            }});
 //    }
+    
+    public boolean isPaused(){
+        return paused;
+    }
     
     public void play() {
         if(timer.getState() == Worker.State.READY){
@@ -332,5 +356,9 @@ public class FXMLMainController implements Initializable {
     private void pause(){
         timer.cancel();
 //        th.interrupt();
+    }
+    
+    public Rutina getRutina(){
+        return rutina;
     }
 }
