@@ -64,6 +64,7 @@ public class FXMLEjerciciosController implements Initializable {
                 return new ListCelda();
             }
         });
+        ejercicios.addAll(new Ejercicio("Abdominales",5),new Ejercicio("Sentadilas",3),new Ejercicio("Flexiones",10));
         nameField.textProperty().addListener(new ChangeListener<String>() {
             @Override
             public void changed(ObservableValue<? extends String> observable, String oldValue,

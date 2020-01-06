@@ -242,10 +242,13 @@ public class FXMLMainController implements Initializable {
     @FXML
     private void action(ActionEvent e) {
         if(e.getSource() == btn && paused.getValue()) {
+            Main.click.play();
             play();
         } else if(e.getSource() == btn && !paused.getValue()) {
+            Main.click.play();
             pause();
         }else if(e.getSource() == next){
+            Main.click.play();
             switch(timer.getEstadoActual()){
                 case TRABAJO:
                     ejTime += timer.getMillisTrans();
@@ -263,6 +266,7 @@ public class FXMLMainController implements Initializable {
             timer.restart();
             
         }else if(e.getSource() == restart){
+            Main.click.play();
             System.out.println("restart");
             
 //            timer.restart();

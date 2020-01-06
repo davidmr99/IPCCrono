@@ -10,14 +10,12 @@ import ipccrono.stages.graficas.FXMLGraficasController;
 import ipccrono.stages.main.FXMLMainController;
 import ipccrono.stages.rutina.FXMLRutinaController;
 import ipccrono.stages.rutinas.FXMLRutinasController;
-import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import javafx.scene.media.AudioClip;
 
 public class Main extends Application {
     
@@ -30,6 +28,8 @@ public class Main extends Application {
     private static FXMLRutinasController rutinasController;
     private static FXMLMainController mainController;
     private static FXMLGraficasController graficasController;
+    
+    public static AudioClip endRutina, endEjercicio, endRepeticion, click;
     
     public static final String styleSheet = "/ipccrono/css/styleSheet.css";
     
@@ -67,9 +67,19 @@ public class Main extends Application {
         graficasScene = new Scene(graficas);
         graficasController = graficasLoader.getController();
         stage.setScene(graficasScene);
-	stage.show();
+        stage.show();
         
         sceneSetup(mainScene);
+        
+        String endRutinaS = "/ipccrono/resources/FinRutina.mp3";
+        String endEjercicioS = "/ipccrono/resources/FinEjercicio.mp3";
+        String endRepeticionS = "/ipccrono/resources/FinRepeticion.mp3";
+        String clickS = "/ipccrono/resources/Click.mp3";
+        
+        endRutina = new AudioClip(getClass().getResource(endRutinaS).toString());
+        endEjercicio = new AudioClip(getClass().getResource(endEjercicioS).toString());
+        endRepeticion = new AudioClip(getClass().getResource(endRepeticionS).toString());
+        click = new AudioClip(getClass().getResource(clickS).toString());
         
     }
     
@@ -118,8 +128,8 @@ public class Main extends Application {
             case GRAFICAS_STAGE:{
                 sceneSetup(graficasScene);
                 break;
+            }
         }
-    }
     }
     
     public static void sceneSetup(Scene scene){

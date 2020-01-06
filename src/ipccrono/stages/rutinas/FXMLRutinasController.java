@@ -63,8 +63,8 @@ public class FXMLRutinasController implements Initializable {
         Rutina ejemploRutina = new Rutina("Rutina fitness", 3, 20, ejemplo , 5);
         
         ObservableList<Ejercicio> ejemplo2 = FXCollections.observableArrayList();
-        ejemplo2.addAll(new Ejercicio("p",3),new Ejercicio("Abdominales",5),new Ejercicio("Flexiones",10));
-        Rutina ejemploRutina2 = new Rutina("Rutina n2", 4, 10, ejemplo2 , 15);
+        ejemplo2.addAll(new Ejercicio("Sentadilas",3),new Ejercicio("Abdominales",5),new Ejercicio("Flexiones",10));
+        Rutina ejemploRutina2 = new Rutina("Rutina #2", 4, 10, ejemplo2 , 15);
         
         rutinas = FXCollections.observableArrayList();
         rutinas.addAll(ejemploRutina,ejemploRutina2);

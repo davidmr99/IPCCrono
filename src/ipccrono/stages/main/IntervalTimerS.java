@@ -196,12 +196,14 @@ public class IntervalTimerS extends Service<Boolean> {
                 switch (estadoActual) {
                     case TRABAJO:
                         if (ejercicioActual < rutina.getEjercicios().size()-1) {
+//                            Main.endEjercicio.play();
                             estadoActual = DESCANSO_EJERCICIO;
                             ejercicioActual++;
                             Platform.runLater(() -> {
                                 ejercicio.setValue("Rutina: "+rutina.getName()+ "     Ejercicio: Descanso ejercicio");
                             });
                         } else if (circuitoActual < rutina.getRepeticiones()-1){
+//                            Main.endRepeticion.play();
                             estadoActual = DESCANSO_CIRCUITO;
                             circuitoActual++;
                             ejercicioActual = 0;
@@ -209,6 +211,7 @@ public class IntervalTimerS extends Service<Boolean> {
                                 ejercicio.setValue("Rutina: "+rutina.getName()+ "     Ejercicio: Descanso repeticion");
                             });
                         } else {
+//                            Main.endRutina.play();
                             //parar la sesion
                             estadoActual = TERMINADO;
                             Platform.runLater(() -> {
@@ -219,12 +222,14 @@ public class IntervalTimerS extends Service<Boolean> {
                         }
                         break;
                     case DESCANSO_EJERCICIO:
+//                            Main.endEjercicio.play();
                         estadoActual = TRABAJO;
                         Platform.runLater(() -> {
                             ejercicio.setValue("Rutina: "+rutina.getName()+ "     Ejercicio: "+rutina.getEjercicios().get(ejercicioActual).getName());
                         });
                         break;
                     case DESCANSO_CIRCUITO:
+//                            Main.endEjercicio.play();
                         estadoActual = TRABAJO;
                         Platform.runLater(() -> {
                             ejercicio.setValue("Rutina: "+rutina.getName()+ "     Ejercicio: "+rutina.getEjercicios().get(ejercicioActual).getName());
@@ -336,12 +341,25 @@ public class IntervalTimerS extends Service<Boolean> {
                     
                 if(estadoActual == TRABAJO){
                     if (duration.compareTo(Duration.ofSeconds(rutina.getEjercicios().get(ejercicioActual).getTime())) >= 0) {
+                        if(ejercicioActual == rutina.getEjercicios().size()-1 && circuitoActual == rutina.getRepeticiones()-1){
+                            Main.endRutina.play();
+                        }else{
+                            Main.endEjercicio.play();
+                        }
                         return cambiaEstado();
                     } else {
                         return false;
                     }
                 }else {
                     if (duration.compareTo(durations.get(estadoActual)) >= 0) {
+                        switch(estadoActual){
+                            case DESCANSO_CIRCUITO:
+                                Main.endRepeticion.play();
+                                break;
+                            case DESCANSO_EJERCICIO:
+                                Main.endEjercicio.play();
+                                break;
+                        }
                         return cambiaEstado();
                     } else {
                         return false;
