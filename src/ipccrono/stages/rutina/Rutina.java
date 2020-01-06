@@ -63,7 +63,7 @@ public class Rutina {
     
     @Override
     public String toString() {
-        return name + ", "+repeticiones+" repes con descanso: "+tDescansoRepeticiones+", ejs: "+ejercicios;
+        return name + ", "+repeticiones+" repes con descanso: "+tDescansoRepeticiones+" y entre ejs: "+tDescansoEjercicios+", ejs: "+ejercicios;
     }
     
     public static int getH(int time){
@@ -80,5 +80,20 @@ public class Rutina {
     
     public int getTime(){
         return totalTime;
+    }
+    
+    public int getEjercicioTime(){
+        int t = 0;
+        for(Ejercicio e:ejercicios){
+//            System.out.println("ejercicio: "+e.getName()+" -> "+ e.getTime());
+            t += e.getTime();
+        }
+        return t * repeticiones;
+    }
+    
+    public int getDescansoTime(){
+//        System.out.println("ejs size: "+ejercicios.size()+" tdescansoEjs: "+tDescansoEjercicios+" tdescansoRepet: "+tDescansoRepeticiones+" repeticiones: "+repeticiones);
+//        System.out.println("size -1*descEJs: "+ ((ejercicios.size() - 1) * tDescansoEjercicios )+" repes-1*descRut "+((repeticiones - 1) * tDescansoRepeticiones) );
+        return (((ejercicios.size() - 1) * tDescansoEjercicios )*repeticiones + ((repeticiones - 1) * tDescansoRepeticiones));
     }
 }

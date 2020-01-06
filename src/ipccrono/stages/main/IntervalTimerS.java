@@ -26,53 +26,45 @@ import javafx.concurrent.Task;
  */
 public class IntervalTimerS extends Service<Boolean> {
     
+    void setStartTimings() {
+        startTimeRutina = System.currentTimeMillis();
+        stoppedDurationRutina = 0;
+        stoppedTimeRutina = startTimeRutina;
+    }
+    
+    void setStoppedDuration(long stpDuration) {
+        stoppedDuration = stpDuration;
+    }
+    
+    void setStoppedDurationRutina(long stpDuration) {
+        stoppedDurationRutina = stpDuration;
+    }
+    
     enum EstadoSesion {
         PREPARADO, TRABAJO, DESCANSO_EJERCICIO, DESCANSO_CIRCUITO, TERMINADO
     };
     HashMap<EstadoSesion, Duration> durations;
-    private static final int DELAY = 1000; // no despertamos cada segundo
-    //tiempos
     private static long currentTime = 0; // guarda la hora del instante actual
     private static long startTime = 0;// guarda la hora del instante inicial del intervalo
+    private static long startTimeRutina = 0;
+    private static long stoppedTimeRutina = 0;
+    private static long stoppedDurationRutina = 0;
     private static long stoppedDuration = 0;// guarda la duracion del tiempo que hemos estdo detenidos
     private static Long stoppedTime;
     
-    private int ejercicioActual = 1;
-    private int circuitoActual = 1;
+    private int ejercicioActual = 0;
+    private int circuitoActual = 0;
     private Rutina rutina;
     
     private EstadoSesion estadoActual = PREPARADO;
     
+    
     // cuando se activa a true y se lanza la task solo se cambia de estado
     private boolean cambiarEstado = false;
     
-    
-                Thread progress = new Thread(){
-                    @Override
-                    public void run() {
-                        while(true){
-                            try {
-                                Thread.sleep(1);
-                            } catch (InterruptedException ex) {
-                                Logger.getLogger(IntervalTimerS.class.getName()).log(Level.SEVERE, null, ex);
-                            }
-                            if(Main.getMainController().getRutina()!= null && !Main.getMainController().isPaused()){
-                                if(millisTrans>0){
-                                    millisTrans--;
-                                }
-                                Platform.runLater(()->{
-                                    System.out.println("millisTrans: "+millisTrans+"  orign: "+millisOriginal);
-                                    double val = 360 - (Double.valueOf(millisTrans) / Double.valueOf(millisOriginal))*360;
-                                ejercicioProgress.setValue(val);
-                                    System.out.println(val);
-                                
-//                                System.out.println("hey runninf");
-                                });
-                            }
-                        }
-                    }
-                    
-                };
+    public long getMillisTrans(){
+        return millisTrans;
+    }
     
     /**
      * Get the value of canviarEstado
@@ -96,6 +88,7 @@ public class IntervalTimerS extends Service<Boolean> {
     
     // propiedad donde se muestra el tiempo transcurrido
     private StringProperty tiempo = new SimpleStringProperty();
+    private StringProperty tiempoRemaining = new SimpleStringProperty();
     private StringProperty ejercicio = new SimpleStringProperty();
     private StringProperty repeticion = new SimpleStringProperty();
     private DoubleProperty ejercicioProgress = new SimpleDoubleProperty(0);
@@ -106,6 +99,14 @@ public class IntervalTimerS extends Service<Boolean> {
     
     public void setTiempo(StringProperty value) {
         tiempo = value;
+    }
+    
+    public String getTiempoRemaining() {
+        return tiempoRemaining.get();
+    }
+    
+    public void setTiempoRemaining(StringProperty value) {
+        tiempoRemaining = value;
     }
     
     public String getEjercicio() {
@@ -136,6 +137,10 @@ public class IntervalTimerS extends Service<Boolean> {
         return tiempo;
     }
     
+    public StringProperty tiempoRemainingProperty() {
+        return tiempoRemaining;
+    }
+    
     public StringProperty ejercicioProperty() {
         return ejercicio;
     }
@@ -148,70 +153,34 @@ public class IntervalTimerS extends Service<Boolean> {
         return ejercicioProgress;
     }
     
-//    public IntervalTimerS(){
-//        if(durations != null){
-//            durations.clear();
-//        }
-//        currentTime = 0; // guarda la hora del instante actual
-//        startTime = 0;// guarda la hora del instante inicial del intervalo
-//        stoppedDuration = 0;// guarda la duracion del tiempo que hemos estdo detenidos
-//        stoppedTime = 0L;
-//        
-//        ejercicioActual = 1;
-//        circuitoActual = 1;
-//        rutina = null;
-//        
-//        estadoActual = PREPARADO;
-//        
-//        // cuando se activa a true y se lanza la task solo se cambia de estado
-//        cambiarEstado = false;
-//        
-//    }
+    public EstadoSesion getEstadoActual(){
+        return estadoActual;
+    }
     
     public void setSesionTipo(Rutina st) {
         rutina = st;
         
         Duration descEjs = Duration.ofSeconds(rutina.getDescansoEjs());
-        Duration descRepet = Duration.ofSeconds(rutina.getDescansoEjs());
+        Duration descRepet = Duration.ofSeconds(rutina.getDescansoRepet());
         
-        durations = new HashMap<EstadoSesion, Duration>();
-//        durations.put(TRABAJO, rutina.);
-//        for(Ejercicio ej:rutina.getEjercicios()){
-//        Duration ejDur = Duration.ofSeconds(ej.getTime());
-//            durations.put(getEj(ej), ejDur)
-//        }
-durations.put(DESCANSO_EJERCICIO, descEjs);
-durations.put(DESCANSO_CIRCUITO, descRepet);
-Platform.runLater(() -> {
-    int time = rutina.getEjercicios().get(0).getTime();
-    tiempo.setValue(String.format("%02d", Rutina.getH(time)) + ":" + String.format("%02d", Rutina.getM(time)) + ":" + String.format("%02d", Rutina.getS(time)));
-    ejercicio.setValue("Rutina: "+rutina.getName()+ "     Ejercicio: "+rutina.getEjercicios().get(0).getName());
-    repeticion.setValue("REPETICION 1/"+rutina.getRepeticiones());
-    ejercicioProgress.setValue(0);
-    millisTrans = time*1000;
-    millisOriginal = millisTrans;
-});
-    }
-    
-    public void restaurarInicio() {
-        if (!this.isRunning()) {
-            stoppedDuration = 0;
-            ejercicioActual = 1;
-            circuitoActual = 1;
-            estadoActual = PREPARADO;
-            stoppedTime = null;
-            Platform.runLater(() -> {
-                int time = rutina.getEjercicios().get(0).getTime();
-                tiempo.setValue(String.format("%02d", Rutina.getH(time)) + ":" + String.format("%02d", Rutina.getM(time)) + ":" + String.format("%02d", Rutina.getS(time)));
-                ejercicio.setValue("Rutina: "+rutina.getName()+ "     Ejercicio: "+rutina.getEjercicios().get(0).getName());
-                repeticion.setValue("REPETICION 1/"+rutina.getRepeticiones());
-                ejercicioProgress.setValue(0);
-            });
-        }
+        durations = new HashMap<>();
+        
+        durations.put(DESCANSO_EJERCICIO, descEjs);
+        durations.put(DESCANSO_CIRCUITO, descRepet);
+        Platform.runLater(() -> {
+            Duration time = Duration.ofSeconds(rutina.getEjercicios().get(0).getTime());
+            tiempo.setValue(String.format("%02d", time.toHours()) + ":" + String.format("%02d", time.minusMinutes(time.toHours()*60).toMinutes()) + ":" + String.format("%02d", time.minusSeconds(time.toMinutes()*60).getSeconds()));
+            Duration timeRemaining = Duration.ofSeconds(rutina.getTime());
+            tiempoRemaining.setValue("De: "+String.format("%02d", timeRemaining.toHours()) + ":" + String.format("%02d", timeRemaining.minusMinutes(timeRemaining.toHours()*60).toMinutes()) + ":" + String.format("%02d", timeRemaining.minusSeconds(timeRemaining.toMinutes()*60).getSeconds()));
+            ejercicio.setValue("Rutina: "+rutina.getName()+ "     Ejercicio: "+rutina.getEjercicios().get(0).getName());
+            repeticion.setValue("REPETICION 1/"+rutina.getRepeticiones());
+            ejercicioProgress.setValue(0);
+            millisTrans = time.toMillis();
+            millisOriginal = millisTrans;
+        });
     }
     
     long millisTrans = 0,millisOriginal=0;
-    int time=0;
     @Override
     protected Task<Boolean> createTask() {
         return new Task<Boolean>() {
@@ -224,19 +193,18 @@ Platform.runLater(() -> {
                 // el estado puede ser detenido o en marcha, hay que comprobar
                 startTime = currentTime;
                 stoppedDuration = 0;
-                stoppedTime = null;
                 switch (estadoActual) {
                     case TRABAJO:
-                        if (ejercicioActual < rutina.getEjercicios().size()) {
+                        if (ejercicioActual < rutina.getEjercicios().size()-1) {
                             estadoActual = DESCANSO_EJERCICIO;
                             ejercicioActual++;
                             Platform.runLater(() -> {
                                 ejercicio.setValue("Rutina: "+rutina.getName()+ "     Ejercicio: Descanso ejercicio");
                             });
-                        } else if (circuitoActual < rutina.getRepeticiones()){
+                        } else if (circuitoActual < rutina.getRepeticiones()-1){
                             estadoActual = DESCANSO_CIRCUITO;
                             circuitoActual++;
-                            ejercicioActual = 1;
+                            ejercicioActual = 0;
                             Platform.runLater(() -> {
                                 ejercicio.setValue("Rutina: "+rutina.getName()+ "     Ejercicio: Descanso repeticion");
                             });
@@ -253,33 +221,59 @@ Platform.runLater(() -> {
                     case DESCANSO_EJERCICIO:
                         estadoActual = TRABAJO;
                         Platform.runLater(() -> {
-                            ejercicio.setValue("Rutina: "+rutina.getName()+ "     Ejercicio: "+rutina.getEjercicios().get(ejercicioActual - 1).getName());
+                            ejercicio.setValue("Rutina: "+rutina.getName()+ "     Ejercicio: "+rutina.getEjercicios().get(ejercicioActual).getName());
                         });
                         break;
                     case DESCANSO_CIRCUITO:
                         estadoActual = TRABAJO;
                         Platform.runLater(() -> {
-                            ejercicio.setValue("Rutina: "+rutina.getName()+ "     Ejercicio: "+rutina.getEjercicios().get(ejercicioActual - 1).getName());
-                            repeticion.setValue("REPETICION " + circuitoActual + "/"+rutina.getRepeticiones());
+                            ejercicio.setValue("Rutina: "+rutina.getName()+ "     Ejercicio: "+rutina.getEjercicios().get(ejercicioActual).getName());
+                            repeticion.setValue("REPETICION " + (circuitoActual+1) + "/"+rutina.getRepeticiones());
                         });
                 }
                 Platform.runLater(() -> {
                     
+                    Duration time;
                     if(estadoActual == TRABAJO){
-                        time = rutina.getEjercicios().get(ejercicioActual - 1).getTime();
+                        time = Duration.ofSeconds(rutina.getEjercicios().get(ejercicioActual).getTime());
                     }else {
-                        time = (int)durations.get(estadoActual).getSeconds();
+                        time = durations.get(estadoActual);
                     }
-                millisTrans = time*1000;
-                millisOriginal = millisTrans;
-                    tiempo.setValue(String.format("%02d", Rutina.getH(time)) + ":" + String.format("%02d", Rutina.getM(time)) + ":" + String.format("%02d", Rutina.getS(time)));
+                    millisTrans = time.toMillis();
+                    millisOriginal = millisTrans;
+                    tiempo.setValue(String.format("%02d", time.toHours()) + ":" + String.format("%02d", time.minusMinutes(time.toHours()*60).toMinutes()) + ":" + String.format("%02d", time.minusSeconds(time.toMinutes()*60).getSeconds()));
+                    
+                    
+                Long totalElapsedTime = (currentTime - startTimeRutina) - stoppedDurationRutina + Main.getMainController().getEjTimeStoped() + Main.getMainController().getDescTimeStoped();
+                Duration duration2 = Duration.ofMillis(totalElapsedTime);
+                Duration totalRemaining = Duration.ofSeconds(rutina.getTime());
+                final Long horasElapsed = duration2.toHours();
+                final Long minutosElapsed = duration2.minusMinutes(horasElapsed*60).toMinutes();
+                final Long segundosElapsed = duration2.minusSeconds(minutosElapsed*60 + horasElapsed * 3600).getSeconds();
+                 
+                
+                    long finalHours = totalRemaining.minusHours(horasElapsed).toHours();
+                    long finalMins = totalRemaining.minusMinutes(totalRemaining.toHours()*60 + minutosElapsed).toMinutes();
+                    long finalSecs = totalRemaining.minusSeconds(totalRemaining.toMinutes()*60 + segundosElapsed).getSeconds();
+                    
+                    if(finalSecs < 0){
+                        finalSecs += 60;
+                        finalMins -= 1;
+                    }
+                    
+                    if(finalMins < 0){
+                        finalMins += 60;
+                        finalHours -=1;
+                    }
+                    
+                    if(finalHours < 0){
+                        finalHours = 0;
+                    }
+                    
+                    tiempoRemaining.setValue("De: "+String.format("%02d", finalHours) + ":" + String.format("%02d", finalMins) + ":" + String.format("%02d", finalSecs));
                 });
-//                task
-//if(System.nanoTime()%(1000000)==0){
-//                        millisTrans--;
-//                        ejercicioProgress.setValue((millisTrans % millisOriginal)*360);
-//                    }
-return false;
+                
+                return false;
             }
             
             // calcula el tiempo del intervalo actual, si se ha cumplido invoca a cambiaEstado
@@ -289,23 +283,59 @@ return false;
                 currentTime = System.currentTimeMillis();
                 Long totalTime = (currentTime - startTime) - stoppedDuration;
                 Duration duration = Duration.ofMillis(totalTime);
-//                millisTrans = duration.getSeconds()*1000;
-//                progress.start();
+                
                 final Long horas = duration.toHours();
-                final Long minutos = duration.toMinutes();
-                final Long segundos = duration.minusMinutes(minutos).getSeconds();
+                final Long minutos = duration.minusMinutes(horas*60).toMinutes();
+                final Long segundos = duration.minusSeconds(minutos*60 + horas * 3600).getSeconds();
+                
+                Long totalElapsedTime = (currentTime - startTimeRutina) - stoppedDurationRutina + Main.getMainController().getEjTimeStoped() + Main.getMainController().getDescTimeStoped();
+                Duration duration2 = Duration.ofMillis(totalElapsedTime);
+                Duration totalRemaining = Duration.ofSeconds(rutina.getTime());
+                final Long horasElapsed = duration2.toHours();
+                final Long minutosElapsed = duration2.minusMinutes(horasElapsed*60).toMinutes();
+                final Long segundosElapsed = duration2.minusSeconds(minutosElapsed*60 + horasElapsed * 3600).getSeconds();
                 
                 Platform.runLater(() -> {
-                    int tiempoEj;
+                    Duration tiempoEj;
                     if(estadoActual == TRABAJO){
-                        tiempoEj = rutina.getEjercicios().get(ejercicioActual-1).getTime();
+                        tiempoEj = Duration.ofSeconds(rutina.getEjercicios().get(ejercicioActual).getTime());
                     }else {
-                        tiempoEj = (int)durations.get(estadoActual).getSeconds();
+                        if(durations.keySet().contains(estadoActual)){
+                            tiempoEj = durations.get(estadoActual);
+                        }else{
+                            tiempoEj = Duration.ofSeconds(rutina.getEjercicios().get(0).getTime());
+                        }
                     }
-                    tiempo.setValue(String.format("%02d", Rutina.getH(tiempoEj) - horas) + ":" + String.format("%02d", Rutina.getM(tiempoEj) - minutos) + ":" + String.format("%02d", Rutina.getS(tiempoEj) - segundos));
+//                    System.out.println("-----------------------------------------------");
+//                    System.out.println("current: "+currentTime+" , started: "+startTime+" ,stoped: "+stoppedDuration);
+//                    System.out.println("tiempoEjH:" + tiempoEj.toHours()+" , horas: "+horas+" , tiempoejM: "+(tiempoEj.toMinutes()-tiempoEj.toHours()*60)+" , minutos: "+minutos+" , tiempoEjsegundos: "+(tiempoEj.getSeconds()-tiempoEj.toMinutes()*60)+" , segundos: "+segundos);
+//                    System.out.println("-----------------------------------------------");
+                    
+                    tiempo.setValue(String.format("%02d", tiempoEj.minusHours(horas).toHours()) + ":" + String.format("%02d", tiempoEj.minusMinutes(tiempoEj.toHours()*60 + minutos).toMinutes()) + ":" + String.format("%02d", tiempoEj.minusSeconds(tiempoEj.toMinutes()*60 + segundos).getSeconds()));
+                    
+                    long finalHours = totalRemaining.minusHours(horasElapsed).toHours();
+                    long finalMins = totalRemaining.minusMinutes(totalRemaining.toHours()*60 + minutosElapsed).toMinutes();
+                    long finalSecs = totalRemaining.minusSeconds(totalRemaining.toMinutes()*60 + segundosElapsed).getSeconds();
+                    
+                    if(finalSecs < 0){
+                        finalSecs += 60;
+                        finalMins -= 1;
+                    }
+                    
+                    if(finalMins < 0){
+                        finalMins += 60;
+                        finalHours -=1;
+                    }
+                    
+                    if(finalHours < 0){
+                        finalHours = 0;
+                    }
+                    
+                    tiempoRemaining.setValue("De: "+String.format("%02d", finalHours) + ":" + String.format("%02d", finalMins) + ":" + String.format("%02d", finalSecs));
                 });
+                    
                 if(estadoActual == TRABAJO){
-                    if (duration.compareTo(Duration.ofSeconds(rutina.getEjercicios().get(ejercicioActual-1).getTime())) >= 0) {
+                    if (duration.compareTo(Duration.ofSeconds(rutina.getEjercicios().get(ejercicioActual).getTime())) >= 0) {
                         return cambiaEstado();
                     } else {
                         return false;
@@ -334,13 +364,15 @@ return false;
                     startTime = currentTime = System.currentTimeMillis();
                     //                    if (firstTime) {
                     if (estadoActual == PREPARADO) { // es lla primera vez que arrancamos el servicio
-                        ejercicioActual = 1;
-                        circuitoActual = 1;
+                        ejercicioActual = 0;
+                        circuitoActual = 0;
                         estadoActual = TRABAJO;
                     }
                 } else { // estabamos detenidos y nos ponemos en marcha sin cambio de estado
                     Long elapsedTime = System.currentTimeMillis() - stoppedTime;
                     stoppedDuration = stoppedDuration + elapsedTime;
+                    System.out.println("PARADOS: "+elapsedTime);
+                    stoppedDurationRutina += elapsedTime;
                     stoppedTime = null;
                 }
                 short n=0;
@@ -348,20 +380,6 @@ return false;
                     if(n==10){
                         n=0;
                     }
-                    if(Main.getMainController().getRutina()!= null && !Main.getMainController().isPaused()){
-                                if(millisTrans>0){
-                                    millisTrans-=10;
-                                }
-                                Platform.runLater(()->{
-//                                    System.out.println("millisTrans: "+millisTrans+"  orign: "+millisOriginal);
-                                    double val = 360 - (Double.valueOf(millisTrans) / Double.valueOf(millisOriginal))*360;
-                                    ejercicioProgress.setValue(val);
-//                                    System.out.println(val);
-                                
-//                                System.out.println("hey runninf");
-                                });
-                    }
-//                    System.out.println("n: "+n);
                     try {
                         Thread.sleep(10);
                     } catch (InterruptedException ex) {
@@ -370,20 +388,36 @@ return false;
                         }
                     }
                     if(n==0){
-                        System.out.println("activate");
                         if (isCancelled()) {
                             break;
                         }
                         if (calcula()) {
                             return true;
                         }
-                        System.out.println("tick");
                     }
+                    if(Main.getMainController().getRutina()!= null && !Main.getMainController().isPaused()){
+                        switch(estadoActual){
+                                case TRABAJO:
+                                    System.out.println("Ejercicio: "+rutina.getEjercicios().get(ejercicioActual) + " miliisO: "+ millisOriginal+"  millisTr: "+millisTrans);
+                                    break;
+                                case DESCANSO_CIRCUITO:
+                                    System.out.println("desc circuito: "+durations.get(estadoActual) + " miliisO: "+ millisOriginal+"  millisTr: "+millisTrans);
+                                    break;
+                                case DESCANSO_EJERCICIO:
+                                    System.out.println("Desc ejerc: "+durations.get(estadoActual) + " miliisO: "+ millisOriginal+"  millisTr: "+millisTrans);
+                                    break;
+                            }
+                        if(millisTrans>=10){
+                            
+                            millisTrans-=10;
+                        }
+                        Platform.runLater(()->{
+                            double val = 360 - (Double.valueOf(millisTrans) / Double.valueOf(millisOriginal))*360;
+                            ejercicioProgress.setValue(val);
+                        });
+                    }
+                    
                     n++;
-//                    if(System.nanoTime()%(1000000)==0){
-//                        millisTrans--;
-//                        ejercicioProgress.setValue((millisTrans % millisOriginal)*360);
-//                    }
 
                 }
                 return false;
@@ -392,14 +426,27 @@ return false;
             @Override
             protected void cancelled() {
                 super.cancelled();
-                stoppedTime = new Long(System.currentTimeMillis());
+                
+                stoppedTime = System.currentTimeMillis();
             }
+            
+            @Override
+            protected void succeeded() {
+                stoppedTimeRutina = System.currentTimeMillis();
+            }
+            
         };
     }
     
-    public boolean isLast(){
-        System.out.println("ejeractual: "+ejercicioActual+"  total: "+rutina.getEjercicios().size() +" circuito now: "+ circuitoActual +" de: "+ rutina.getRepeticiones());
-        return ejercicioActual - 1 == rutina.getEjercicios().size() && circuitoActual == rutina.getRepeticiones();
+    public void setStoppedTime(Long l){
+        stoppedTime = l;
     }
     
+    public long getStoppedDuration(){
+        return stoppedDurationRutina / 1000;
+    }
+    
+    public long getExercisedDuration(){
+        return ((stoppedTimeRutina - startTimeRutina) - stoppedDurationRutina) / 1000;
+    }
 }

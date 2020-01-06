@@ -45,7 +45,7 @@
             </GridPane>
          </top>
          <center>
-            <VBox alignment="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" spacing="10.0" BorderPane.alignment="CENTER">
+            <VBox alignment="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" BorderPane.alignment="CENTER">
                <children>
                   <Label fx:id="ejercicioTime" text="00:00:00">
                      <font>
@@ -54,11 +54,8 @@
                      <VBox.margin>
                         <Insets />
                      </VBox.margin>
-                     <padding>
-                        <Insets top="-50.0" />
-                     </padding>
                   </Label>
-                  <BorderPane prefHeight="200.0" prefWidth="200.0">
+                  <BorderPane prefHeight="200.0" prefWidth="800.0">
                      <center>
                         <HBox fx:id="hBar" alignment="CENTER" fillHeight="false" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" spacing="10.0" BorderPane.alignment="CENTER">
                            <children>
@@ -131,12 +128,26 @@
                      <VBox.margin>
                         <Insets top="10.0" />
                      </VBox.margin>
+                     <bottom>
+                        <Button fx:id="statsButton" mnemonicParsing="false" onAction="#action" visible="false" BorderPane.alignment="CENTER">
+                           <graphic>
+                              <ImageView fitHeight="46.0" fitWidth="100.0" pickOnBounds="true" preserveRatio="true">
+                                 <image>
+                                    <Image url="@../../resources/graphs.png" />
+                                 </image>
+                              </ImageView>
+                           </graphic>
+                           <BorderPane.margin>
+                              <Insets bottom="10.0" top="10.0" />
+                           </BorderPane.margin>
+                        </Button>
+                     </bottom>
                   </BorderPane>
                </children>
             </VBox>
          </center>
          <bottom>
-            <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#rutinas" text="Rutinas" BorderPane.alignment="CENTER">
+            <Button fx:id="rutinasBtn" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#rutinas" text="Rutinas" BorderPane.alignment="CENTER">
                <font>
                   <Font name="Bebas" size="25.0" />
                </font>

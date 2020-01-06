@@ -13,6 +13,8 @@ import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Platform;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.concurrent.Task;
 import javafx.concurrent.Worker;
 import javafx.event.ActionEvent;
@@ -66,7 +68,7 @@ public class FXMLMainController implements Initializable {
     @FXML
     private Button next;
     
-    private boolean paused = true;
+    private BooleanProperty paused = new SimpleBooleanProperty(true);
     
     private Image playImg,pauseImg;
     @FXML
@@ -77,19 +79,41 @@ public class FXMLMainController implements Initializable {
     private Label rutinaTime;
     
     private Thread th;
+    @FXML
+    private Button statsButton;
+    
+    private long ejTime = 0;
+    private long descTime = 0;
+    long lastParado=0;
+    @FXML
+    private Button rutinasBtn;
     
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         playImg = new Image(getClass().getResourceAsStream("/ipccrono/resources/play.png"));
         pauseImg = new Image(getClass().getResourceAsStream("/ipccrono/resources/pausa.png"));
-        init();
+        init(null);
     }
+    
     
 //    public void setBgColor(Color c){
 //        pane.setStyle("-fx-background-color: rgb("+c.getRed()*255+","+c.getGreen()*255+","+c.getBlue()*255+");");
 //        innerCircle.setFill(c);
 //    }
+    
+    
+    public Boolean getPaused() {
+        return paused.get();
+    }
+    
+    public void setPaused(BooleanProperty value) {
+        paused = value;
+    }
+    
+    public BooleanProperty pausedProperty() {
+        return paused;
+    }
     
     public Arc getProgressCircle() {
         return progressCircle;
@@ -118,10 +142,15 @@ public class FXMLMainController implements Initializable {
     
     @FXML
     private void rutinas(ActionEvent event) throws Exception{
+        statsButton.setVisible(false);
         Main.switchScene(Main.RUTINAS_STAGE);
     }
     
-    public void init(){
+    public void init(Rutina r){
+        rutinasBtn.disableProperty().bind(pausedProperty().not());
+        ejTime = 0;
+        descTime = 0;
+        rutina = r;
         Task<Long> task = new Task<Long>() {
             @Override
             protected Long call() throws Exception {
@@ -157,208 +186,152 @@ public class FXMLMainController implements Initializable {
             rutinaYEjercicio.setText("Rutina: -     Ejercicio: -");
             ejercicioTime.textProperty().unbind();
             ejercicioTime.setText("00:00:00");
-//            rutinaTime.textProperty().unbind();
-rutinaTime.setText("De: 00:00:00");
-
+            rutinaTime.textProperty().unbind();
+            rutinaTime.setText("De: 00:00:00");
+            
         }else {
             th.interrupt();
             timer = null;
             timer = new IntervalTimerS();
-            timer.restaurarInicio();
             timer.setSesionTipo(rutina);
+            timer.setStoppedDuration(0L);
+            timer.setStoppedDurationRutina(0L);
+            timer.setOnFailed((event) -> {
+                System.out.println("FAILEDDD!!");
+                
+                init(rutina);
+                btn.fire();
+            });
+            
             ejercicioTime.textProperty().bind(timer.tiempoProperty());
+            rutinaTime.textProperty().bind(timer.tiempoRemainingProperty());
             rutinaYEjercicio.textProperty().bind(timer.ejercicioProperty());
             nRepeticion.textProperty().bind(timer.repeticionProperty());
             
             timer.setOnSucceeded(c -> {
                 if (timer != null && timer.getValue() != null && timer.getValue()) {
                     System.out.println("FINISHED!");
-                    init();
-                    timer.restaurarInicio();
-//                    timer = new IntervalTimerS();
-//                    timer.setSesionTipo(rutina);
+                    
+                    long descansos;
+                    if(paused.get()){
+                        descansos = System.currentTimeMillis() - lastParado;
+                    }else{
+                        descansos = 0;
+                    }
+                    timer.setStoppedTime(0L);
+                    statsButton.setVisible(true);
+                    Main.getGraficasController().clear();
+                    System.out.println("rutina: "+rutina);
+                    System.out.println("descansos: "+(descansos/1000));
+                    Main.getGraficasController().setData(rutina.getEjercicioTime() - (ejTime/1000), rutina.getEjercicioTime(), timer.getStoppedDuration()+(descansos/1000) + rutina.getDescansoTime() - (descTime/1000), rutina.getDescansoTime());
+                    timer.reset();
+                    init(rutina);
                 }
             });
             
             btn.setDisable(false);
-            paused = true;
-            imageBtn.setImage(playImg);
             restart.setDisable(true);
             next.setDisable(true);
+            paused.setValue(true);
+            imageBtn.setImage(playImg);
             progressCircle.setStartAngle(90);
-            progressCircle.lengthProperty().bind(timer.ejercicioProgressProperty());//setLength(0);
-            
-//            nRepeticion.setText("REPETICION 1/"+rutina.getRepeticiones());
-//            rutinaYEjercicio.setText("Rutina: "+rutina.getName()+ "     Ejercicio: "+rutina.getEjercicios().get(0).getName());
-//            Ejercicio ej0 = rutina.getEjercicios().get(0);
-//            ejercicioTime.setText(format(Rutina.getH(ej0.getTime()))+":"+format(Rutina.getM(ej0.getTime()))+":"+format(Rutina.getS(ej0.getTime())));
-rutinaTime.setText("De: "+ format(Rutina.getH(rutina.getTime()))+":"+format(Rutina.getM(rutina.getTime()))+":"+format(Rutina.getS(rutina.getTime())));
+            progressCircle.lengthProperty().bind(timer.ejercicioProgressProperty());
         }
+    }
+    
+    @FXML
+    private void action(ActionEvent e) {
+        if(e.getSource() == btn && paused.getValue()) {
+            play();
+        } else if(e.getSource() == btn && !paused.getValue()) {
+            pause();
+        }else if(e.getSource() == next){
+            switch(timer.getEstadoActual()){
+                case TRABAJO:
+                    ejTime += timer.getMillisTrans();
+                    System.out.println("ejTime: "+ejTime);
+                    break;
+                case DESCANSO_CIRCUITO:
+                case DESCANSO_EJERCICIO:
+                    descTime += timer.getMillisTrans();
+                    System.out.println("descTime: "+descTime);
+                    break;
+            }
+            System.out.println("next");
+            timer.setEjercicioProgress(0d);
+            timer.setCambiarEstado(true);
+            timer.restart();
+            
+        }else if(e.getSource() == restart){
+            System.out.println("restart");
+            
+//            timer.restart();
+init(rutina);
+        }else if(e.getSource() == statsButton) {
+//            System.out.println("stopped duration: "+timer.getStoppedDuration());
+Main.switchScene(Main.GRAFICAS_STAGE);
+        }
+        
+    }
+    
+//    public void setRutina(Rutina rutina) {
+//        ejTime = 0;
+//        descTime = 0;
+//        this.rutina = rutina;
+////        init();
+//    }
+    
+    public void play() {
+        
+        statsButton.setVisible(false);
+        imageBtn.setImage(pauseImg);
+        restart.setDisable(true);
+        next.setDisable(true);
+        paused.setValue(!paused.getValue());
+        switch (timer.getState()/*getEstadoActual()*/) {
+            case READY:
+                timer.setStartTimings();
+                System.out.println("start timings");
+                timer.start();
+                break;
+//            case TERMINADO:
+////                init();
+//                break;
+            default:
+                timer.restart();
+                break;
+        }
+    }
+    private void pause(){
+        
+        lastParado = System.currentTimeMillis();
+        imageBtn.setImage(playImg);
+        restart.setDisable(false);
+        next.setDisable(false);
+        paused.setValue(!paused.getValue());
+        timer.cancel();
+    }
+    
+    public Rutina getRutina(){
+        return rutina;
+    }
+    
+    public IntervalTimerS getTimer(){
+        return timer;
+    }
+    public boolean isPaused(){
+        return paused.getValue();
     }
     
     public String format(int n){
         return String.format("%02d", n);
     }
     
-    @FXML
-    private void action(ActionEvent e) {
-        if(e.getSource() == btn && paused) {
-            imageBtn.setImage(pauseImg);
-            restart.setDisable(true);
-            next.setDisable(true);
-            play();
-            paused = !paused;
-            //cambiar a imagen pausado y continuar con el task del coronometro
-        } else if(e.getSource() == btn && !paused) {
-            imageBtn.setImage(playImg);
-            restart.setDisable(false);
-            next.setDisable(false);
-            pause();
-            //cambiar a imagen play y pausar el task
-            paused = !paused;
-        }else if(e.getSource() == next){
-            if(timer.isLast()){
-                System.out.println("LAST");
-                restart.fire();
-            }else{
-                System.out.println("next");
-                timer.setEjercicioProgress(0d);
-                timer.setCambiarEstado(true);
-                timer.restart();
-            }
-        }else if(e.getSource() == restart){
-            System.out.println("restart");
-            timer.restart();
-            init();
-//            timer.restaurarInicio();
-        }
-        
+    public long getEjTimeStoped(){
+        return ejTime;
     }
     
-    public void setRutina(Rutina rutina) {
-        this.rutina = rutina;
-        init();
-    }
-    
-//    protected void call() throws Exception{
-//        Platform.runLater(new Runnable() {
-//            @Override public void run() {
-//                int totalTime = rutina.getTime();
-//                for(int i = 1; i <= rutina.getRepeticiones();i++){
-//                    for(Ejercicio ej : rutina.getEjercicios()){
-//                        rutinaYEjercicio.setText("Rutina: "+rutina.getName()+ "     Ejercicio: "+ej.getName());
-//                        for(int t = ej.getTime(); t >0;t--){
-//                            ejercicioTime.setText(format(Rutina.getH(t))+":"+format(Rutina.getM(t))+":"+format(Rutina.getS(t)));
-//                            rutinaTime.setText("De: "+ format(Rutina.getH(totalTime))+":"+format(Rutina.getM(totalTime))+":"+format(Rutina.getS(totalTime)));
-//                            totalTime --;
-//                            try {
-//                                Thread.sleep(1000);
-//                            } catch (InterruptedException ex) {
-//                                Logger.getLogger(FXMLMainController.class.getName()).log(Level.SEVERE, null, ex);
-//                            }
-//                        }
-//                    }
-//                    nRepeticion.setText("REPETICION "+i+"/"+rutina.getRepeticiones());
-//                }
-//            }});
-//    }
-    
-    public boolean isPaused(){
-        return paused;
-    }
-    
-    public void play() {
-        if(timer.getState() == Worker.State.READY){
-            timer.start();
-        }else{
-            timer.restart();
-        }
-//        if(th != null && th.isInterrupted()){
-//            try {
-//                th.join();
-//            } catch (InterruptedException ex) {
-//                Logger.getLogger(FXMLMainController.class.getName()).log(Level.SEVERE, null, ex);
-//            }
-//        }else{
-//
-//        Task play = new Task() {
-//            @Override
-//            protected Object call() throws Exception {
-//
-//                totalTime = rutina.getTime();
-//                for(i = 0; i < rutina.getRepeticiones();i++){
-//                    for(int o=0;o<rutina.getEjercicios().size();o++){
-//
-//                        Ejercicio ej = rutina.getEjercicios().get(o);
-//
-//                        Platform.runLater(new Runnable() {
-//                            @Override
-//                            public void run() {
-//                                rutinaYEjercicio.setText("Rutina: "+rutina.getName()+ "     Ejercicio: "+ej.getName());
-//                            }
-//                        });
-//                        for(t = ej.getTime(); t >0;t--){
-//                            Platform.runLater(new Runnable() {
-//                                @Override
-//                                public void run() {
-//                                    ejercicioTime.setText(format(Rutina.getH(t))+":"+format(Rutina.getM(t))+":"+format(Rutina.getS(t)));
-//                                    rutinaTime.setText("De: "+ format(Rutina.getH(totalTime))+":"+format(Rutina.getM(totalTime))+":"+format(Rutina.getS(totalTime)));
-//                                }
-//                            });
-//                            totalTime --;
-//                            Thread.sleep(1000);
-//                        }
-//                        //DESCANSO ENTRE EJERCICIOS
-//                        if(o != rutina.getEjercicios().size()){
-//                            for(t = rutina.getDescansoEjs(); t > 0;t--) {
-//                                Platform.runLater(new Runnable() {
-//                                    @Override
-//                                    public void run() {
-//                                        rutinaYEjercicio.setText("Rutina: "+rutina.getName()+ "     Descanso ejercicios");
-//                                        ejercicioTime.setText(format(Rutina.getH(t))+":"+format(Rutina.getM(t))+":"+format(Rutina.getS(t)));
-//                                        rutinaTime.setText("De: "+ format(Rutina.getH(totalTime))+":"+format(Rutina.getM(totalTime))+":"+format(Rutina.getS(totalTime)));
-//                                    }
-//                                });
-//                                totalTime --;
-//                                Thread.sleep(1000);
-//                            }
-//                        }
-//                    }
-//                    /*DESCANSO ENTRE REPETICIONES*/
-//                    for(t = rutina.getDescansoRepet(); t > 0;t--) {
-//                        Platform.runLater(new Runnable() {
-//                            @Override
-//                            public void run() {
-//                                rutinaYEjercicio.setText("Rutina: "+rutina.getName()+ "     Descanso repeticiones");
-//                                int t = rutina.getDescansoRepet();
-//                                ejercicioTime.setText(format(Rutina.getH(t))+":"+format(Rutina.getM(t))+":"+format(Rutina.getS(t)));
-//                                rutinaTime.setText("De: "+ format(Rutina.getH(totalTime))+":"+format(Rutina.getM(totalTime))+":"+format(Rutina.getS(totalTime)));
-//                            }
-//                        });
-//                        totalTime --;
-//                        Thread.sleep(1000);
-//                    }
-//                    Platform.runLater(new Runnable() {
-//                        @Override
-//                        public void run() {
-//                            nRepeticion.setText("REPETICION "+(i + 1)+"/"+rutina.getRepeticiones());
-//                        }
-//                    });
-//                }
-//                return null;
-//            }
-//        };
-//        th = new Thread(play);
-//        th.setDaemon(true);
-//        th.start();
-//        }
-    }
-    private void pause(){
-        timer.cancel();
-//        th.interrupt();
-    }
-    
-    public Rutina getRutina(){
-        return rutina;
+    public long getDescTimeStoped(){
+        return descTime;
     }
 }

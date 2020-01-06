@@ -6,9 +6,13 @@
 package ipccrono;
 
 import ipccrono.stages.ejercicios.FXMLEjerciciosController;
+import ipccrono.stages.graficas.FXMLGraficasController;
 import ipccrono.stages.main.FXMLMainController;
 import ipccrono.stages.rutina.FXMLRutinaController;
 import ipccrono.stages.rutinas.FXMLRutinasController;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -18,13 +22,14 @@ import javafx.stage.Stage;
 public class Main extends Application {
     
     private static Stage stage;
-    public final static int MAIN_STAGE = 0, RUTINAS_STAGE = 1, ADD_EDIT_RUTINA_STAGE=2, ADD_SELECT_EJERCICIO = 3;
-    private static Scene mainScene, rutinasScene, rutinaScene, ejerciciosScene;
+    public final static int MAIN_STAGE = 0, RUTINAS_STAGE = 1, ADD_EDIT_RUTINA_STAGE=2, ADD_SELECT_EJERCICIO = 3, GRAFICAS_STAGE = 4;
+    private static Scene mainScene, rutinasScene, rutinaScene, ejerciciosScene, graficasScene;
     
     private static FXMLEjerciciosController ejsController;
     private static FXMLRutinaController rutinaController;
     private static FXMLRutinasController rutinasController;
     private static FXMLMainController mainController;
+    private static FXMLGraficasController graficasController;
     
     public static final String styleSheet = "/ipccrono/css/styleSheet.css";
     
@@ -56,6 +61,14 @@ public class Main extends Application {
         ejerciciosScene = new Scene(ejercicios);
         ejsController = ejerciciosLoader.getController();
         
+        //GRAFICAS WINDOW
+        FXMLLoader graficasLoader = new FXMLLoader(getClass().getResource("/ipccrono/stages/graficas/FXMLGraficas.fxml"));
+        Parent graficas = graficasLoader.load();
+        graficasScene = new Scene(graficas);
+        graficasController = graficasLoader.getController();
+        stage.setScene(graficasScene);
+	stage.show();
+        
         sceneSetup(mainScene);
         
     }
@@ -74,6 +87,10 @@ public class Main extends Application {
     
     public static FXMLRutinaController getRutinaController(){
         return rutinaController;
+    }
+    
+    public static FXMLGraficasController getGraficasController(){
+        return graficasController;
     }
     
     public static void main(String[] args) {
@@ -98,7 +115,11 @@ public class Main extends Application {
                 sceneSetup(ejerciciosScene);
                 break;
             }
+            case GRAFICAS_STAGE:{
+                sceneSetup(graficasScene);
+                break;
         }
+    }
     }
     
     public static void sceneSetup(Scene scene){

@@ -74,10 +74,10 @@ public class FXMLRutinasController implements Initializable {
     @FXML
     private void cronometro(ActionEvent event) {
         if(listView.getSelectionModel().getSelectedItem() != null){
-            Main.getMainController().setRutina(listView.getSelectionModel().getSelectedItem());
+            Main.getMainController().init(listView.getSelectionModel().getSelectedItem());
         }else{
             if(Main.getMainController().getRutina() != null){
-                Main.getMainController().setRutina(null);
+                Main.getMainController().init(null);
             }
         }
         Main.switchScene(Main.MAIN_STAGE);
