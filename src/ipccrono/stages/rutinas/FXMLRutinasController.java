@@ -44,6 +44,8 @@ public class FXMLRutinasController implements Initializable {
     private ListView<Rutina> listView;
     
     private static ObservableList<Rutina> rutinas;
+    @FXML
+    private Button boton;
 
     /**
      * Initializes the controller class.
@@ -90,25 +92,34 @@ public class FXMLRutinasController implements Initializable {
         Main.switchScene(Main.ADD_EDIT_RUTINA_STAGE);
     }
     
+    public Button getBoton(){
+        return boton;
+    }
+    
     public ObservableList<Rutina> getRutinas() {
         return rutinas;
     }
     
+    public ListView<Rutina> getListView() {
+        return listView;
+    }
+    
 }
 class ListCelda extends ListCell<Rutina> {
-    private Button btn,btn2;
+    private Button btn,btn2,btn3;
     private Rutina rutina;
     @Override
     protected void updateItem(Rutina item, boolean empty) {
         super.updateItem(item, empty);
         if (item == null || empty) {
             setGraphic(null);
+            setStyle("");
             setText(null);
         } else {
             setGraphic(null);
             setText(null);
             rutina = item;
-            btn = new Button();
+            btn = new Button("ELIMINAR");
             Image img = new Image("/ipccrono/resources/cancel.png");
             ImageView imgView = new ImageView(img);
             imgView.setFitHeight(28);
@@ -118,7 +129,7 @@ class ListCelda extends ListCell<Rutina> {
                 Main.getRutinasController().getRutinas().remove(rutina);
             });
             
-            btn2 = new Button();
+            btn2 = new Button("EDITAR");
             Image img2 = new Image("/ipccrono/resources/pencil.png");
             ImageView imgView2 = new ImageView(img2);
             imgView2.setFitHeight(28);
@@ -134,17 +145,36 @@ class ListCelda extends ListCell<Rutina> {
                 Main.switchScene(Main.ADD_EDIT_RUTINA_STAGE);
             });
             
+            btn3 = new Button("SELECCIONAR");
+            Image img3 = new Image("/ipccrono/resources/check.png");
+            ImageView imgView3 = new ImageView(img3);
+            imgView3.setFitHeight(28);
+            imgView3.setFitWidth(28);
+            btn3.setGraphic(imgView3);
+            btn3.setOnAction((event) -> {
+                Main.getRutinasController().getListView().getSelectionModel().clearSelection();
+                Main.getRutinasController().getListView().getSelectionModel().select(item);
+                Main.getRutinasController().getBoton().fire();
+            });
+            
+            btn.setStyle("-fx-background-color:orange;");
+            btn2.setStyle("-fx-background-color:orange;");
+            btn3.setStyle("-fx-background-color:orange;");
+            
             GridPane gp = new GridPane();
             ColumnConstraints col1 = new ColumnConstraints();
-            col1.setPercentWidth(84);
+            col1.setPercentWidth(46);
             ColumnConstraints col2 = new ColumnConstraints();
-            col2.setPercentWidth(8);
+            col2.setPercentWidth(20);
             ColumnConstraints col3 = new ColumnConstraints();
-            col3.setPercentWidth(8);
-            gp.getColumnConstraints().addAll(col1,col2,col3);
+            col3.setPercentWidth(14);
+            ColumnConstraints col4 = new ColumnConstraints();
+            col4.setPercentWidth(20);
+            gp.getColumnConstraints().addAll(col1,col2,col3,col4);
             gp.add(new Label(item.getName()), 0, 0);
-            gp.add(btn, 1, 0);
+            gp.add(btn3, 1, 0);
             gp.add(btn2, 2, 0);
+            gp.add(btn, 3, 0);
             
 //            HBox h = new HBox(new Label(item.getName()),imgView,imgView2);
 //            h.setSpacing(5);

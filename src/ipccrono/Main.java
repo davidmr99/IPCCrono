@@ -14,8 +14,10 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import javafx.scene.media.AudioClip;
+import javafx.scene.text.Font;
 
 public class Main extends Application {
     
@@ -67,6 +69,8 @@ public class Main extends Application {
         graficasScene = new Scene(graficas);
         graficasController = graficasLoader.getController();
         stage.setScene(graficasScene);
+        stage.getIcons().add(new Image("/ipccrono/resources/icon2.png"));
+        stage.setTitle("Train master");
         stage.show();
         
         sceneSetup(mainScene);

@@ -199,6 +199,7 @@ class ListCelda extends ListCell<Ejercicio> {
                Main.getRutinaController().removeEj(item);
             });
             
+            btn.setStyle("-fx-background-color:orange;");
             GridPane gp = new GridPane();
             ColumnConstraints col1 = new ColumnConstraints();
             col1.setPercentWidth(84);

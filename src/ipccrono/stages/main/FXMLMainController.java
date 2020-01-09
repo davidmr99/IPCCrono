@@ -28,6 +28,7 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.paint.Color;
 import javafx.scene.shape.Arc;
 import javafx.scene.shape.Circle;
 
@@ -78,7 +79,6 @@ public class FXMLMainController implements Initializable {
     @FXML
     private Label rutinaTime;
     
-    private Thread th;
     @FXML
     private Button statsButton;
     
@@ -95,12 +95,6 @@ public class FXMLMainController implements Initializable {
         pauseImg = new Image(getClass().getResourceAsStream("/ipccrono/resources/pausa.png"));
         init(null);
     }
-    
-    
-//    public void setBgColor(Color c){
-//        pane.setStyle("-fx-background-color: rgb("+c.getRed()*255+","+c.getGreen()*255+","+c.getBlue()*255+");");
-//        innerCircle.setFill(c);
-//    }
     
     
     public Boolean getPaused() {
@@ -143,6 +137,7 @@ public class FXMLMainController implements Initializable {
     @FXML
     private void rutinas(ActionEvent event) throws Exception{
         statsButton.setVisible(false);
+        Main.getMainController().getProgressCircle().setFill(Color.DODGERBLUE);
         Main.switchScene(Main.RUTINAS_STAGE);
     }
     
@@ -151,34 +146,12 @@ public class FXMLMainController implements Initializable {
         ejTime = 0;
         descTime = 0;
         rutina = r;
-        Task<Long> task = new Task<Long>() {
-            @Override
-            protected Long call() throws Exception {
-                double angle = 0.0;
-                while (rutina == null) {
-                    if (isCancelled()) {
-                        break;
-                    }
-                    try {
-                        Thread.sleep(10);
-                    } catch (InterruptedException e) {
-                    }
-                    progressCircle.setStartAngle(angle);
-                    angle += 1;
-                }
-                return 0l;
-            }
-        };
         if(rutina == null) {
             btn.setDisable(true);
             restart.setDisable(true);
             next.setDisable(true);
             progressCircle.lengthProperty().unbind();
-            progressCircle.setLength(135);
-            
-            th = new Thread(task);
-            th.setDaemon(true);
-            th.start();
+            progressCircle.setLength(0);
             
             nRepeticion.textProperty().unbind();
             nRepeticion.setText("REPETICION 0/0");
@@ -190,7 +163,6 @@ public class FXMLMainController implements Initializable {
             rutinaTime.setText("De: 00:00:00");
             
         }else {
-            th.interrupt();
             timer = null;
             timer = new IntervalTimerS();
             timer.setSesionTipo(rutina);
@@ -266,24 +238,15 @@ public class FXMLMainController implements Initializable {
             timer.restart();
             
         }else if(e.getSource() == restart){
+            Main.getMainController().getProgressCircle().setFill(Color.DODGERBLUE);
             Main.click.play();
             System.out.println("restart");
-            
-//            timer.restart();
-init(rutina);
+            init(rutina);
         }else if(e.getSource() == statsButton) {
-//            System.out.println("stopped duration: "+timer.getStoppedDuration());
-Main.switchScene(Main.GRAFICAS_STAGE);
+            Main.switchScene(Main.GRAFICAS_STAGE);
         }
         
     }
-    
-//    public void setRutina(Rutina rutina) {
-//        ejTime = 0;
-//        descTime = 0;
-//        this.rutina = rutina;
-////        init();
-//    }
     
     public void play() {
         
@@ -298,9 +261,6 @@ Main.switchScene(Main.GRAFICAS_STAGE);
                 System.out.println("start timings");
                 timer.start();
                 break;
-//            case TERMINADO:
-////                init();
-//                break;
             default:
                 timer.restart();
                 break;

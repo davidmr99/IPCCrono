@@ -10,8 +10,6 @@ import static ipccrono.stages.main.IntervalTimerS.EstadoSesion.*;
 import ipccrono.stages.rutina.Rutina;
 import java.time.Duration;
 import java.util.HashMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.application.Platform;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
@@ -19,6 +17,7 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
+import javafx.scene.paint.Color;
 
 /**
  *
@@ -201,6 +200,7 @@ public class IntervalTimerS extends Service<Boolean> {
                             ejercicioActual++;
                             Platform.runLater(() -> {
                                 ejercicio.setValue("Rutina: "+rutina.getName()+ "     Ejercicio: Descanso ejercicio");
+                                Main.getMainController().getProgressCircle().setFill(Color.ORANGE);
                             });
                         } else if (circuitoActual < rutina.getRepeticiones()-1){
 //                            Main.endRepeticion.play();
@@ -209,6 +209,7 @@ public class IntervalTimerS extends Service<Boolean> {
                             ejercicioActual = 0;
                             Platform.runLater(() -> {
                                 ejercicio.setValue("Rutina: "+rutina.getName()+ "     Ejercicio: Descanso repeticion");
+                                Main.getMainController().getProgressCircle().setFill(Color.ORANGE);
                             });
                         } else {
 //                            Main.endRutina.play();
@@ -226,6 +227,7 @@ public class IntervalTimerS extends Service<Boolean> {
                         estadoActual = TRABAJO;
                         Platform.runLater(() -> {
                             ejercicio.setValue("Rutina: "+rutina.getName()+ "     Ejercicio: "+rutina.getEjercicios().get(ejercicioActual).getName());
+                                Main.getMainController().getProgressCircle().setFill(Color.DODGERBLUE);
                         });
                         break;
                     case DESCANSO_CIRCUITO:
@@ -234,6 +236,7 @@ public class IntervalTimerS extends Service<Boolean> {
                         Platform.runLater(() -> {
                             ejercicio.setValue("Rutina: "+rutina.getName()+ "     Ejercicio: "+rutina.getEjercicios().get(ejercicioActual).getName());
                             repeticion.setValue("REPETICION " + (circuitoActual+1) + "/"+rutina.getRepeticiones());
+                                Main.getMainController().getProgressCircle().setFill(Color.DODGERBLUE);
                         });
                 }
                 Platform.runLater(() -> {
