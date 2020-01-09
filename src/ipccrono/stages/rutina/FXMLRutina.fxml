@@ -47,7 +47,7 @@
                         <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                      </HBox.margin>
                   </Button>
-                  <Button cancelButton="true" maxWidth="380.0" minWidth="380.0" mnemonicParsing="false" onAction="#cancel" style="-fx-background-color: orange;" text="CANCELAR">
+                  <Button fx:id="cancel" cancelButton="true" maxWidth="380.0" minWidth="380.0" mnemonicParsing="false" onAction="#cancel" style="-fx-background-color: orange;" text="CANCELAR">
                      <font>
                         <Font name="Berlin Sans FB" size="30.0" />
                      </font>
@@ -121,7 +121,7 @@
                      <children>
                         <HBox alignment="CENTER" spacing="10.0">
                            <children>
-                              <Button mnemonicParsing="false" onAction="#addEjercicio" style="-fx-background-color: #ffd196; -fx-border-color: grey;">
+                              <Button fx:id="addEj" mnemonicParsing="false" onAction="#addEjercicio" style="-fx-background-color: #ffd196; -fx-border-color: grey;">
                                  <graphic>
                                     <Text boundsType="VISUAL" strokeLineCap="ROUND" strokeLineJoin="ROUND" strokeMiterLimit="0.0" strokeType="INSIDE" strokeWidth="0.0" text="+" textAlignment="CENTER" textOrigin="CENTER">
                                        <font>

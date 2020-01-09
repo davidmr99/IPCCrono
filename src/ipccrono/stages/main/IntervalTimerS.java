@@ -88,7 +88,8 @@ public class IntervalTimerS extends Service<Boolean> {
     // propiedad donde se muestra el tiempo transcurrido
     private StringProperty tiempo = new SimpleStringProperty();
     private StringProperty tiempoRemaining = new SimpleStringProperty();
-    private StringProperty ejercicio = new SimpleStringProperty();
+    private StringProperty rutinaLabel = new SimpleStringProperty();
+    private StringProperty ejercicioLabel = new SimpleStringProperty();
     private StringProperty repeticion = new SimpleStringProperty();
     private DoubleProperty ejercicioProgress = new SimpleDoubleProperty(0);
     
@@ -108,12 +109,20 @@ public class IntervalTimerS extends Service<Boolean> {
         tiempoRemaining = value;
     }
     
+    public String getRutina() {
+        return rutinaLabel.get();
+    }
+    
+    public void setRutina(StringProperty value) {
+        rutinaLabel = value;
+    }
+    
     public String getEjercicio() {
-        return ejercicio.get();
+        return ejercicioLabel.get();
     }
     
     public void setEjercicio(StringProperty value) {
-        ejercicio = value;
+        ejercicioLabel = value;
     }
     
     public Double getEjercicioProgress() {
@@ -140,8 +149,12 @@ public class IntervalTimerS extends Service<Boolean> {
         return tiempoRemaining;
     }
     
+    public StringProperty rutinaProperty() {
+        return rutinaLabel;
+    }
+    
     public StringProperty ejercicioProperty() {
-        return ejercicio;
+        return ejercicioLabel;
     }
     
     public StringProperty repeticionProperty() {
@@ -171,7 +184,8 @@ public class IntervalTimerS extends Service<Boolean> {
             tiempo.setValue(String.format("%02d", time.toHours()) + ":" + String.format("%02d", time.minusMinutes(time.toHours()*60).toMinutes()) + ":" + String.format("%02d", time.minusSeconds(time.toMinutes()*60).getSeconds()));
             Duration timeRemaining = Duration.ofSeconds(rutina.getTime());
             tiempoRemaining.setValue("De: "+String.format("%02d", timeRemaining.toHours()) + ":" + String.format("%02d", timeRemaining.minusMinutes(timeRemaining.toHours()*60).toMinutes()) + ":" + String.format("%02d", timeRemaining.minusSeconds(timeRemaining.toMinutes()*60).getSeconds()));
-            ejercicio.setValue("Rutina: "+rutina.getName()+ "     Ejercicio: "+rutina.getEjercicios().get(0).getName());
+            rutinaLabel.setValue("Rutina: "+rutina.getName());
+            ejercicioLabel.setValue("Ejercicio: "+rutina.getEjercicios().get(0).getName());
             repeticion.setValue("REPETICION 1/"+rutina.getRepeticiones());
             ejercicioProgress.setValue(0);
             millisTrans = time.toMillis();
@@ -199,7 +213,8 @@ public class IntervalTimerS extends Service<Boolean> {
                             estadoActual = DESCANSO_EJERCICIO;
                             ejercicioActual++;
                             Platform.runLater(() -> {
-                                ejercicio.setValue("Rutina: "+rutina.getName()+ "     Ejercicio: Descanso ejercicio");
+                                rutinaLabel.setValue("Rutina: "+rutina.getName());
+                                ejercicioLabel.setValue("Descanso ejercicio");
                                 Main.getMainController().getProgressCircle().setFill(Color.ORANGE);
                             });
                         } else if (circuitoActual < rutina.getRepeticiones()-1){
@@ -208,7 +223,8 @@ public class IntervalTimerS extends Service<Boolean> {
                             circuitoActual++;
                             ejercicioActual = 0;
                             Platform.runLater(() -> {
-                                ejercicio.setValue("Rutina: "+rutina.getName()+ "     Ejercicio: Descanso repeticion");
+                                rutinaLabel.setValue("Rutina: "+rutina.getName());
+                                ejercicioLabel.setValue("Descanso repetición");
                                 Main.getMainController().getProgressCircle().setFill(Color.ORANGE);
                             });
                         } else {
@@ -216,7 +232,8 @@ public class IntervalTimerS extends Service<Boolean> {
                             //parar la sesion
                             estadoActual = TERMINADO;
                             Platform.runLater(() -> {
-                                ejercicio.setValue("Rutina: "+rutina.getName()+ "     Ejercicio: "+rutina.getEjercicios().get(0).getName());
+                                rutinaLabel.setValue("Rutina: "+rutina.getName());
+                                ejercicioLabel.setValue("Ejercicio: "+rutina.getEjercicios().get(0).getName());
                                 ejercicioProgress.setValue(0);
                             });
                             return true;
@@ -226,15 +243,17 @@ public class IntervalTimerS extends Service<Boolean> {
 //                            Main.endEjercicio.play();
                         estadoActual = TRABAJO;
                         Platform.runLater(() -> {
-                            ejercicio.setValue("Rutina: "+rutina.getName()+ "     Ejercicio: "+rutina.getEjercicios().get(ejercicioActual).getName());
-                                Main.getMainController().getProgressCircle().setFill(Color.DODGERBLUE);
+                            rutinaLabel.setValue("Rutina: "+rutina.getName());
+                            ejercicioLabel.setValue("Ejercicio: "+rutina.getEjercicios().get(ejercicioActual).getName());
+                            Main.getMainController().getProgressCircle().setFill(Color.DODGERBLUE);
                         });
                         break;
                     case DESCANSO_CIRCUITO:
 //                            Main.endEjercicio.play();
                         estadoActual = TRABAJO;
                         Platform.runLater(() -> {
-                            ejercicio.setValue("Rutina: "+rutina.getName()+ "     Ejercicio: "+rutina.getEjercicios().get(ejercicioActual).getName());
+                            rutinaLabel.setValue("Rutina: "+rutina.getName());
+                            ejercicioLabel.setValue("Ejercicio: "+rutina.getEjercicios().get(ejercicioActual).getName());
                             repeticion.setValue("REPETICION " + (circuitoActual+1) + "/"+rutina.getRepeticiones());
                                 Main.getMainController().getProgressCircle().setFill(Color.DODGERBLUE);
                         });

@@ -43,31 +43,38 @@ public class Main extends Application {
         FXMLLoader mainLoader = new FXMLLoader(getClass().getResource("/ipccrono/stages/main/FXMLMain.fxml"));
         Parent main = mainLoader.load();
         mainScene = new Scene(main);
+        mainScene.getStylesheets().add(styleSheet);
         mainController = mainLoader.getController();
         
         //RUTINAS WINDOW
         FXMLLoader rutinasLoader = new FXMLLoader(getClass().getResource("/ipccrono/stages/rutinas/FXMLRutinas.fxml"));
         Parent rutinas = rutinasLoader.load();
         rutinasScene = new Scene(rutinas);
+        rutinasScene.getStylesheets().add(styleSheet);
         rutinasController = rutinasLoader.getController();
         
         //RUTINA WINDOW
         FXMLLoader rutinaLoader = new FXMLLoader(getClass().getResource("/ipccrono/stages/rutina/FXMLRutina.fxml"));
         Parent rutina = rutinaLoader.load();
         rutinaScene = new Scene(rutina);
+        rutinaScene.getStylesheets().add(styleSheet);
         rutinaController = rutinaLoader.getController();
         
         //EJERCICIOS WINDOW
         FXMLLoader ejerciciosLoader = new FXMLLoader(getClass().getResource("/ipccrono/stages/ejercicios/FXMLEjercicios.fxml"));
         Parent ejercicios = ejerciciosLoader.load();
         ejerciciosScene = new Scene(ejercicios);
+        ejerciciosScene.getStylesheets().add(styleSheet);
         ejsController = ejerciciosLoader.getController();
         
         //GRAFICAS WINDOW
         FXMLLoader graficasLoader = new FXMLLoader(getClass().getResource("/ipccrono/stages/graficas/FXMLGraficas.fxml"));
         Parent graficas = graficasLoader.load();
         graficasScene = new Scene(graficas);
+        graficasScene.getStylesheets().add(styleSheet);
         graficasController = graficasLoader.getController();
+        
+        
         stage.setScene(graficasScene);
         stage.getIcons().add(new Image("/ipccrono/resources/icon2.png"));
         stage.setTitle("Train master");

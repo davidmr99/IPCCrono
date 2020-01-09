@@ -7,9 +7,15 @@
 .cell:odd:filled:selected {
   -fx-background: -fx-control-inner-background-alt ;
 }*/
-.cell:selected{
+/*.cell:selected{
     -fx-background: -fx-control-inner-background ;
     -fx-background-color: #fff, #b1d5ff;
     
     -fx-cell-border-color: derive(-fx-color, 5%);
+}*/
+.root{
+    -fx-cursor:default;
+}
+.button {
+    -fx-cursor:hand;
 }

@@ -20,6 +20,7 @@ import javafx.concurrent.Worker;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
@@ -28,9 +29,11 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Arc;
 import javafx.scene.shape.Circle;
+import javafx.scene.text.Font;
 
 /**
  *
@@ -87,6 +90,11 @@ public class FXMLMainController implements Initializable {
     long lastParado=0;
     @FXML
     private Button rutinasBtn;
+    @FXML
+    private BorderPane borderPane;
+    
+    private static Label ejercicio;
+    private static StackPane h;
     
     
     @Override
@@ -142,6 +150,22 @@ public class FXMLMainController implements Initializable {
     }
     
     public void init(Rutina r){
+        rutinasBtn.setOnMouseEntered((event) -> {
+            rutinasBtn.setStyle("-fx-background-color:#ffc849;");
+        });
+        rutinasBtn.setOnMouseExited((event) -> {
+            rutinasBtn.setStyle("-fx-background-color:orange;");
+        });
+        ejercicio = new Label("Ejercicio: - ");
+        ejercicio.setStyle("-fx-text-fill:white;");
+        ejercicio.setFont(Font.font("Berlin Sans FB", 35));
+        h = new StackPane(ejercicio,statsButton);
+        h.setAlignment(Pos.CENTER);
+        borderPane.setBottom(h);
+        BorderPane.setAlignment(borderPane, Pos.CENTER);
+        
+        ejercicio.visibleProperty().bind(statsButton.visibleProperty().not());
+        
         rutinasBtn.disableProperty().bind(pausedProperty().not());
         ejTime = 0;
         descTime = 0;
@@ -156,7 +180,9 @@ public class FXMLMainController implements Initializable {
             nRepeticion.textProperty().unbind();
             nRepeticion.setText("REPETICION 0/0");
             rutinaYEjercicio.textProperty().unbind();
-            rutinaYEjercicio.setText("Rutina: -     Ejercicio: -");
+            rutinaYEjercicio.setText("Rutina: -");
+            ejercicio.textProperty().unbind();
+            ejercicio.setText("Ejercicio: -");
             ejercicioTime.textProperty().unbind();
             ejercicioTime.setText("00:00:00");
             rutinaTime.textProperty().unbind();
@@ -177,7 +203,8 @@ public class FXMLMainController implements Initializable {
             
             ejercicioTime.textProperty().bind(timer.tiempoProperty());
             rutinaTime.textProperty().bind(timer.tiempoRemainingProperty());
-            rutinaYEjercicio.textProperty().bind(timer.ejercicioProperty());
+            rutinaYEjercicio.textProperty().bind(timer.rutinaProperty());
+            ejercicio.textProperty().bind(timer.ejercicioProperty());
             nRepeticion.textProperty().bind(timer.repeticionProperty());
             
             timer.setOnSucceeded(c -> {

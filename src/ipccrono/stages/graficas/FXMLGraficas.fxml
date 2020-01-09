@@ -48,7 +48,7 @@
             </VBox>
          </center>
          <bottom>
-            <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#volver" prefWidth="400.0" style="-fx-background-color: orange;" text="VOLVER">
+            <Button fx:id="boton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#volver" prefWidth="400.0" style="-fx-background-color: orange;" text="VOLVER">
                <font>
                   <Font name="Berlin Sans FB" size="30.0" />
                </font>

@@ -1,11 +1,10 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+* To change this license header, choose License Headers in Project Properties.
+* To change this template file, choose Tools | Templates
+* and open the template in the editor.
+*/
 package ipccrono.stages.rutinas;
 
-import com.sun.javafx.collections.ObservableListWrapper;
 import ipccrono.stages.rutina.Rutina;
 import ipccrono.Main;
 import ipccrono.stages.ejercicios.Ejercicio;
@@ -14,12 +13,9 @@ import java.net.URL;
 import java.util.ResourceBundle;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.collections.ObservableListBase;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.Cursor;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
@@ -37,7 +33,7 @@ import javafx.util.Callback;
  * @author FMR
  */
 public class FXMLRutinasController implements Initializable {
-
+    
     @FXML
     private BorderPane mainPane;
     @FXML
@@ -46,33 +42,46 @@ public class FXMLRutinasController implements Initializable {
     private static ObservableList<Rutina> rutinas;
     @FXML
     private Button boton;
-
+    @FXML
+    private Button addRut;
+    
     /**
      * Initializes the controller class.
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        
-//        listView.setCellFactory(lv -> new ListCelda());
-        listView.setCellFactory(new Callback<ListView<Rutina>, ListCell<Rutina>>() {
-            @Override
-            public ListCell<Rutina> call(ListView<Rutina> param) {
-                return new ListCelda();
-            }
+        boton.setOnMouseEntered((event) -> {
+            boton.setStyle("-fx-background-color:#ffc849;");
         });
-        ObservableList<Ejercicio> ejemplo = FXCollections.observableArrayList();
-        ejemplo.add(new Ejercicio("Abdominales",5));
-        Rutina ejemploRutina = new Rutina("Rutina fitness", 3, 20, ejemplo , 5);
-        
-        ObservableList<Ejercicio> ejemplo2 = FXCollections.observableArrayList();
-        ejemplo2.addAll(new Ejercicio("Sentadilas",3),new Ejercicio("Abdominales",5),new Ejercicio("Flexiones",10));
-        Rutina ejemploRutina2 = new Rutina("Rutina #2", 4, 10, ejemplo2 , 15);
-        
-        rutinas = FXCollections.observableArrayList();
-        rutinas.addAll(ejemploRutina,ejemploRutina2);
-        listView.setItems(rutinas);
-    }    
+        boton.setOnMouseExited((event) -> {
+            boton.setStyle("-fx-background-color:orange;");
+        });
+        addRut.setOnMouseEntered((event) -> {
+            addRut.setStyle("-fx-background-color:#ffc849;-fx-background-radius:50;-fx-border-radius:50;");
+        });
+        addRut.setOnMouseExited((event) -> {
+            addRut.setStyle("-fx-background-color:orange;-fx-background-radius:50;-fx-border-radius:50;");
+        });
+//        listView.setCellFactory(lv -> new ListCelda());
+listView.setCellFactory(new Callback<ListView<Rutina>, ListCell<Rutina>>() {
+    @Override
+    public ListCell<Rutina> call(ListView<Rutina> param) {
+        return new ListCelda();
+    }
+});
+ObservableList<Ejercicio> ejemplo = FXCollections.observableArrayList();
+ejemplo.add(new Ejercicio("Abdominales",5));
+Rutina ejemploRutina = new Rutina("Rutina fitness", 3, 20, ejemplo , 5);
 
+ObservableList<Ejercicio> ejemplo2 = FXCollections.observableArrayList();
+ejemplo2.addAll(new Ejercicio("Sentadilas",3),new Ejercicio("Abdominales",5),new Ejercicio("Flexiones",10));
+Rutina ejemploRutina2 = new Rutina("Rutina #2", 4, 10, ejemplo2 , 15);
+
+rutinas = FXCollections.observableArrayList();
+rutinas.addAll(ejemploRutina,ejemploRutina2);
+listView.setItems(rutinas);
+    }
+    
     @FXML
     private void cronometro(ActionEvent event) {
         if(listView.getSelectionModel().getSelectedItem() != null){
@@ -84,7 +93,7 @@ public class FXMLRutinasController implements Initializable {
         }
         Main.switchScene(Main.MAIN_STAGE);
     }
-
+    
     @FXML
     private void addRutina(ActionEvent event) {
         Main.getRutinaController().clearData();
@@ -161,6 +170,25 @@ class ListCelda extends ListCell<Rutina> {
             btn2.setStyle("-fx-background-color:orange;");
             btn3.setStyle("-fx-background-color:orange;");
             
+            btn.setOnMouseEntered((event) -> {
+                btn.setStyle("-fx-background-color:#ffc849;");
+            });
+            btn.setOnMouseExited((event) -> {
+                btn.setStyle("-fx-background-color:orange;");
+            });
+            btn2.setOnMouseEntered((event) -> {
+                btn2.setStyle("-fx-background-color:#ffc849;");
+            });
+            btn2.setOnMouseExited((event) -> {
+                btn2.setStyle("-fx-background-color:orange;");
+            });
+            btn3.setOnMouseEntered((event) -> {
+                btn3.setStyle("-fx-background-color:#ffc849;");
+            });
+            btn3.setOnMouseExited((event) -> {
+                btn3.setStyle("-fx-background-color:orange;");
+            });
+            
             GridPane gp = new GridPane();
             ColumnConstraints col1 = new ColumnConstraints();
             col1.setPercentWidth(46);
@@ -179,8 +207,7 @@ class ListCelda extends ListCell<Rutina> {
 //            HBox h = new HBox(new Label(item.getName()),imgView,imgView2);
 //            h.setSpacing(5);
 //            setGraphic(h);
-            setCursor(Cursor.HAND);
-            setGraphic(gp);
+setGraphic(gp);
         }
     }
 }

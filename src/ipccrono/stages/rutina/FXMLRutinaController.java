@@ -56,12 +56,34 @@ public class FXMLRutinaController implements Initializable {
     
     public static boolean editingRutina = false;
     public static int index = 0;
+    @FXML
+    private Button cancel;
+    @FXML
+    private Button addEj;
 
     /**
      * Initializes the controller class.
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        accept.setOnMouseEntered((event) -> {
+            accept.setStyle("-fx-background-color:#ffc849;");
+        });
+        accept.setOnMouseExited((event) -> {
+            accept.setStyle("-fx-background-color:orange;");
+        });
+        cancel.setOnMouseEntered((event) -> {
+            cancel.setStyle("-fx-background-color:#ffc849;");
+        });
+        cancel.setOnMouseExited((event) -> {
+            cancel.setStyle("-fx-background-color:orange;");
+        });
+        addEj.setOnMouseEntered((event) -> {
+            addEj.setStyle("-fx-background-color:#ffc849;-fx-border-color:grey;");
+        });
+        addEj.setOnMouseExited((event) -> {
+            addEj.setStyle("-fx-background-color:#ffd196;-fx-border-color:grey;");
+        });
         ejercicios = FXCollections.observableArrayList();
         updateButton();
         ejerciciosListView.setCellFactory((ListView<Ejercicio> param) -> new ListCelda());

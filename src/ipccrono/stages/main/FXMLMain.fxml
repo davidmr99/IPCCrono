@@ -55,7 +55,7 @@
                         <Insets />
                      </VBox.margin>
                   </Label>
-                  <BorderPane prefHeight="200.0" prefWidth="800.0">
+                  <BorderPane fx:id="borderPane" prefHeight="200.0" prefWidth="800.0">
                      <center>
                         <HBox fx:id="hBar" alignment="CENTER" fillHeight="false" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" spacing="10.0" BorderPane.alignment="CENTER">
                            <children>
@@ -154,5 +154,6 @@
             </Button>
          </bottom>
       </BorderPane>
+      <VBox prefHeight="200.0" prefWidth="100.0" />
    </children>
 </AnchorPane>

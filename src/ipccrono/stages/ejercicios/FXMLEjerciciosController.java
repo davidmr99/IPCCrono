@@ -50,12 +50,35 @@ public class FXMLEjerciciosController implements Initializable {
     private Button addNewEj;
     
     private ObservableList<Ejercicio> ejercicios;
+    @FXML
+    private Button cancel;
     
     /**
      * Initializes the controller class.
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        
+        addEj.setOnMouseEntered((event) -> {
+            addEj.setStyle("-fx-background-color:#ffc849;");
+        });
+        addEj.setOnMouseExited((event) -> {
+            addEj.setStyle("-fx-background-color:orange;");
+        });
+        cancel.setOnMouseEntered((event) -> {
+            cancel.setStyle("-fx-background-color:#ffc849;");
+        });
+        cancel.setOnMouseExited((event) -> {
+            cancel.setStyle("-fx-background-color:orange;");
+        });
+        
+        addNewEj.setOnMouseEntered((event) -> {
+            addNewEj.setStyle("-fx-background-color:#ffc849;-fx-border-color:grey;");
+        });
+        addNewEj.setOnMouseExited((event) -> {
+            addNewEj.setStyle("-fx-background-color:#ffd196;-fx-border-color:grey;");
+        });
+        
         ejercicios = FXCollections.observableArrayList();
         updateButton();
         ejerciciosListView.setCellFactory(new Callback<ListView<Ejercicio>, ListCell<Ejercicio>>() {
@@ -149,6 +172,14 @@ class ListCelda extends ListCell<Ejercicio> {
                 Main.getEjsController().removeEj(item);
             });
             btn.setStyle("-fx-background-color:orange;");
+            
+            
+            btn.setOnMouseEntered((event) -> {
+                btn.setStyle("-fx-background-color:#ffc849;");
+            });
+            btn.setOnMouseExited((event) -> {
+                btn.setStyle("-fx-background-color:orange;");
+            });
             
             GridPane gp = new GridPane();
             ColumnConstraints col1 = new ColumnConstraints();

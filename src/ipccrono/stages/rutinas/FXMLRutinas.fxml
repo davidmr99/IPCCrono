@@ -37,7 +37,7 @@
          <bottom>
             <VBox alignment="CENTER" BorderPane.alignment="CENTER">
                <children>
-                  <Button contentDisplay="CENTER" graphicTextGap="0.0" maxHeight="60.0" maxWidth="60.0" minHeight="60.0" minWidth="60.0" mnemonicParsing="false" onAction="#addRutina" prefHeight="60.0" prefWidth="60.0" style="-fx-border-radius: 50; -fx-background-radius: 50; -fx-background-color: orange;">
+                  <Button fx:id="addRut" contentDisplay="CENTER" graphicTextGap="0.0" maxHeight="60.0" maxWidth="60.0" minHeight="60.0" minWidth="60.0" mnemonicParsing="false" onAction="#addRutina" prefHeight="60.0" prefWidth="60.0" style="-fx-border-radius: 50; -fx-background-radius: 50; -fx-background-color: orange;">
                      <font>
                         <Font name="Bebas" size="30.0" />
                      </font>
@@ -52,7 +52,7 @@
                         </Text>
                      </graphic>
                   </Button>
-                  <Button fx:id="boton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#cronometro" style="-fx-background-color: orange;" text="CRONÓMETRO">
+                  <Button fx:id="boton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#cronometro" style="-fx-background-color: orange;" text="VOLVER AL CRONÓMETRO">
                      <font>
                         <Font name="Berlin Sans FB" size="30.0" />
                      </font>

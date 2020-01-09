@@ -19,6 +19,7 @@ import javafx.scene.chart.PieChart;
 import javafx.scene.chart.PieChart.Data;
 import javafx.scene.chart.StackedBarChart;
 import javafx.scene.chart.XYChart;
+import javafx.scene.control.Button;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 
@@ -40,6 +41,8 @@ public class FXMLGraficasController implements Initializable {
     double ejercicioTeorico;
     double descansoReal;
     double descansoTeorico;
+    @FXML
+    private Button boton;
     /**
      * Initializes the controller class.
      */
@@ -47,7 +50,12 @@ public class FXMLGraficasController implements Initializable {
     public void initialize(URL url, ResourceBundle rb) {
         tarta.setTitle("Rutina");
         
-        
+        boton.setOnMouseEntered((event) -> {
+            boton.setStyle("-fx-background-color:#ffc849;");
+        });
+        boton.setOnMouseExited((event) -> {
+            boton.setStyle("-fx-background-color:orange;");
+        });
         //Diagrama de barras
         CategoryAxis x = new CategoryAxis();
         NumberAxis y = new NumberAxis();
